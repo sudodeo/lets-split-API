@@ -11,7 +11,7 @@ app.use(express.json());
 app.use(cors());
 app.use(helmet());
 app.use(compression());
-app.use(responseTime);
+app.use(responseTime());
 
 app.use("/api/auth", routes.authRoutes);
 
