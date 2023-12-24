@@ -1,14 +1,12 @@
 const authRouter = require("express").Router();
+const userController = require("../controllers/user.controller");
+const authController = require("../controllers/auth.controller");
 
-// registration, login, password reset, token refresh, logout
-authRouter.post("/register", (req, res) => {
-  const { firstName, lastName, email, password, confirmPassword, dateOfbirth, address } = req.body; // add phoneNumber later
-  
-
-});
-
-authRouter.post("/login", (req, res) => {
-  const { email, password } = req.body;
-});
+authRouter.post("/register", userController.createUser);
+authRouter.post("/login", authController.login);
+authRouter.post("/logout", authController.logout);
+authRouter.post("/refresh", authController.refreshToken);
+authRouter.post("/forgot-password", authController.forgotPassword);
+authRouter.post("/reset-password/:token", authController.resetPassword);
 
 module.exports = authRouter;
