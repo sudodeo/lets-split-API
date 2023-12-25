@@ -23,13 +23,8 @@ if (process.env.NODE_ENV === "dev") {
 
 app.use("/api/auth", routes.authRoutes);
 
-app.get("/api/health", (req, res) => {
-  res.status(200).json({
-    status: "ok",
-    message: "API is healthy",
-    uptime: Math.floor(process.uptime()) + " seconds",
-    timestamp: new Date().toISOString(),
-  });
+app.get("/", (req, res) => {
+  res.redirect("/api/docs");
 });
 
 module.exports = app;
