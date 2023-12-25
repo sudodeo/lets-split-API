@@ -1,10 +1,12 @@
-const express = require("express");
-const routes = require("./routes");
-const helmet = require("helmet");
-const cors = require("cors");
-const morgan = require("morgan");
-const compression = require("compression");
-const responseTime = require("response-time");
+const express = require("express"),
+  routes = require("./routes"),
+  helmet = require("helmet"),
+  cors = require("cors"),
+  morgan = require("morgan"),
+  compression = require("compression"),
+  responseTime = require("response-time");
+
+require("./database");
 
 const app = express();
 
