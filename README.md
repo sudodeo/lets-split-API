@@ -1,6 +1,9 @@
 # Lets-Split-API Documentation
 Welcome to the Expense Splitting App API documentation. This API is designed to simplify and streamline the process of splitting expenses among friends, family, or colleagues.
 
+## Database Schema
+![Schema](schema.png)
+
 ## Getting Started
 
 ### Prerequisites
