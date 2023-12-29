@@ -12,7 +12,7 @@ CREATE TABLE "users" (
 
 CREATE TABLE "expenses" (
   "id" UUID UNIQUE PRIMARY KEY NOT NULL DEFAULT (gen_random_uuid()),
-  "amount" money NOT NULL,
+  "amount" decimal NOT NULL,
   "currency_code" varchar(3),
   "created_by" UUID,
   "description" varchar,
@@ -24,7 +24,7 @@ CREATE TABLE "expense_participants" (
   "user_id" UUID,
   "expense_id" UUID,
   "settled" boolean,
-  "payment_cut" money,
+  "payment_cut" decimal,
   "currency_code" varchar(3),
   "comments" varchar,
   PRIMARY KEY ("user_id", "expense_id")
