@@ -6,7 +6,7 @@ const express = require("express"),
   responseTime = require("response-time"),
   swaggerJsdoc = require("swagger-jsdoc"),
   swaggerUi = require("swagger-ui-express"),
-  routes = require("./routes");
+  routes = require("./routes/index.route");
 
 require("./database");
 
