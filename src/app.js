@@ -25,6 +25,7 @@ if (process.env.NODE_ENV === "dev") {
 }
 
 app.use("/api/auth", routes.authRoutes);
+app.use("/api/expenses", routes.expenseRoutes);
 app.use("/api/health", routes.healthRoute);
 const options = {
   definition: {
