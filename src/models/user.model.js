@@ -1,4 +1,4 @@
-const pool = require("../database");
+const pool = require("../../db/connection");
 
 // Function to retrieve all users from the database
 const getAllUsers = async () => {
