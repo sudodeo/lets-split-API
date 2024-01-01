@@ -8,8 +8,6 @@ const express = require("express"),
   swaggerUi = require("swagger-ui-express"),
   routes = require("./routes/index.route");
 
-require("./database");
-
 const app = express();
 
 app.use(express.json());
@@ -27,6 +25,8 @@ if (process.env.NODE_ENV === "dev") {
 app.use("/api/auth", routes.authRoutes);
 app.use("/api/expenses", routes.expenseRoutes);
 app.use("/api/health", routes.healthRoute);
+app.use("/api/currencies", routes.currenciesRoute)
+
 const options = {
   definition: {
     openapi: "3.1.0",
