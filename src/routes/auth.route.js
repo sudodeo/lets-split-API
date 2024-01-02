@@ -115,7 +115,6 @@ authRouter.post(
   check("email").exists().notEmpty().isEmail().normalizeEmail(),
   check("password").exists().notEmpty(),
   validateMiddleware.validateInput,
-  authMiddleware.authenticateToken,
   authController.login
 );
 
@@ -185,7 +184,11 @@ authRouter.post(
  *      400:
  *        description:  bad request body
  */
-authRouter.post("/forgot-password", authController.forgotPassword);
+authRouter.post(
+  "/forgot-password",
+  check("email").exists().notEmpty().isEmail().normalizeEmail(),
+  authController.forgotPassword
+);
 
 /**
  * @swagger
@@ -207,6 +210,11 @@ authRouter.post("/forgot-password", authController.forgotPassword);
  *      409:
  *        description:  user already exists
  */
-authRouter.post("/reset-password/:token", authController.resetPassword);
+authRouter.post(
+  "/reset-password/:token",
+  check("confirmPassword").exists().notEmpty(),
+  check("password").exists().notEmpty(),
+  authController.resetPassword
+);
 
 export default authRouter;
