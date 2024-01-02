@@ -1,14 +1,16 @@
-const currenciesModel = require("../models/currencies.model");
+import currenciesModel from "../models/currencies.model.js";
 
-exports.getCurrencies = async (req, res) => {
+const getCurrencies = async (_req, res) => {
   try {
-    currencies = await currenciesModel.getCurrencies();
-    res.status(200).json({currencies})
+    const currencies = await currenciesModel.getCurrencies();
+    res.status(200).json({ currencies });
   } catch (error) {
     res.status(500).json({
-        success:false,
-        error: "internal server error"
-    })
-    console.error(error)
+      success: false,
+      error: "internal server error",
+    });
+    console.error(error);
   }
 };
+
+export default { getCurrencies };

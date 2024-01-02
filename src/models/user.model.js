@@ -1,13 +1,12 @@
-const pool = require("../../db/connection");
+import pool from "../../db/connection.js";
 
-// Function to retrieve all users from the database
 const getAllUsers = async () => {
   const client = await pool.connect();
   try {
     const result = await client.query("SELECT * FROM users;");
     return result.rows;
-  } catch (err) {
-    return { users: [], err };
+  } catch (error) {
+    return { users: [], error };
   } finally {
     client.release();
   }
@@ -20,14 +19,14 @@ const getUser = async (email) => {
       email,
     ]);
     return result.rows[0];
-  } catch (err) {
-    console.log(err);
+  } catch (error) {
+    console.log(error);
+    throw error;
   } finally {
     client.release();
   }
 };
 
-// Function to create a new user in the database
 const createUser = async (userData) => {
   const client = await pool.connect();
   try {
@@ -44,17 +43,24 @@ const createUser = async (userData) => {
     );
 
     return result.rows[0];
-  } catch (err) {
-    throw err;
+  } catch (error) {
+    throw error;
   } finally {
     client.release();
   }
 };
 
-// TODO: modify user (patch)
+const editUser = async (data) => {
+  const client = await pool.connect();
+  const keys = data.keys;
+  const values = data.values;
+  try {
+    const result = await client.query("UPDATE users");
 
-module.exports = {
-  getAllUsers,
-  getUser,
-  createUser,
+    return;
+  } catch (error) {
+    throw error;
+  }
 };
+
+export default { getAllUsers, getUser, createUser, editUser };

@@ -1,4 +1,4 @@
-const bcrypt = require("bcrypt");
+import bcrypt from "bcrypt";
 
 const hashPassword = async (unhashedPassword) => {
   let salt = await bcrypt.genSalt(12);
@@ -9,4 +9,4 @@ const compareHash = async (newHash, oldHash) => {
   return await bcrypt.compare(newHash, oldHash);
 };
 
-module.exports = { hashPassword, compareHash };
+export default { hashPassword, compareHash };

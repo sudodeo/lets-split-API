@@ -1,6 +1,8 @@
-const currencyRoute = require("express").Router();
-const currencyController = require("../controllers/currencies.controller");
+import {Router} from "express";
+import currencyController from "../controllers/currencies.controller.js";
+
+const currencyRoute = Router();
 
 currencyRoute.get("/", currencyController.getCurrencies);
 
-module.exports = currencyRoute;
+export default currencyRoute;

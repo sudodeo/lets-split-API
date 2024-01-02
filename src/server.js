@@ -1,10 +1,11 @@
-const app = require("./app");
-const seeder = require("../db/seeds/currenciesSeeder")
+import app from "./app.js";
+import { seedDatabase } from "../db/seeds/currenciesSeeder.js";
 
-
-const { PORT } = require("./config/index");
+import { PORT } from "./config/index.js";
 
 app.listen(PORT, async () => {
-  await seeder.seedDatabase()
+  await seedDatabase();
   console.log(`Server running on port ${PORT}`);
 });
+
+export default { server: app };

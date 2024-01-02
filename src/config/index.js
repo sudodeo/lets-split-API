@@ -1,4 +1,5 @@
-require("dotenv").config();
+import dotenv from "dotenv";
+dotenv.config();
 
 const {
   PORT,
@@ -11,7 +12,7 @@ const {
   NODE_ENV,
 } = process.env;
 
-module.exports = {
+export {
   PORT,
   DB_USER,
   DB_HOST,

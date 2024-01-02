@@ -1,10 +1,10 @@
-const pg = require("pg");
-const dbConfig = require("../src/config/dbConfig");
+import pg from "pg";
+import * as dbConfig from "../src/config/dbConfig.js";
 const pool = new pg.Pool(dbConfig);
 
-pool.on("error", (err) => {
-  console.log(err);
+pool.on("error", (error) => {
+  console.log(error);
   process.exit(-1);
 });
 
-module.exports = pool;
+export default pool;

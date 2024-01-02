@@ -1,4 +1,4 @@
-const pool = require("../connection");
+import pool from "../connection.js";
 
 const currencies = ["NGN", "USD", "GBP"];
 
@@ -31,8 +31,8 @@ const seedDatabase = async () => {
   } catch (error) {
     console.error("Error seeding database:", error.message);
   } finally {
-    await client.release();
+    client.release();
   }
 };
 
-module.exports = { currencies, seedDatabase };
+export { currencies, seedDatabase };

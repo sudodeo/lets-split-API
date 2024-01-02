@@ -1,40 +1,40 @@
-const userModel = require("../models/user.model");
-const userService = require("../services/user.service");
-const { validationResult } = require("express-validator");
+import userModel from "../models/user.model.js";
+import userService from "../services/user.service.js";
+import { validationResult } from "express-validator";
 
-exports.getAllUsers = async (req, res) => {
+const getAllUsers = async (req, res) => {
   try {
     const result = await userModel.getAllUsers();
     res.status(200).json({ success: true, data: result.users });
-  } catch (err) {
+  } catch (error) {
     res.status(500).json({
       message: "error occured, could not fetch users",
     });
 
-    console.erroor(err);
+    console.error(error);
   }
 };
 
-exports.getUser = async (req, res) => {
+const getUser = async (req, res) => {
   try {
     const result = await userModel.getUser(req.body.email);
     res.status(200).json({ success: true, data: result.rows[0] });
-  } catch (err) {
+  } catch (error) {
     res.status(500).json({
       message: "error occured, could not create user",
     });
-    console.error(err);
+    console.error(error);
   }
 };
 
-exports.createUser = async (req, res) => {
+const createUser = async (req, res) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
     if (req.body.password != req.body.confirmPassword) {
-      res.status(400).json({
+      return res.status(400).json({
         success: false,
         error: "password and confirmPassword do not match",
       });
@@ -42,8 +42,9 @@ exports.createUser = async (req, res) => {
 
     const existingUser = await userModel.getUser(req.body.email);
     if (existingUser) {
-      res.status(409).json({ success: false, error: "user already exists" });
-      return;
+      return res
+        .status(409)
+        .json({ success: false, error: "user already exists" });
     }
 
     const user = await userService.registerUser(req.body);
@@ -55,10 +56,23 @@ exports.createUser = async (req, res) => {
     delete user.password;
 
     res.status(201).json({ success: true, data: user });
-  } catch (err) {
+  } catch (error) {
     res.status(500).json({
       message: "error occured, could not create user",
     });
-    console.error(err);
+    console.error(error);
   }
 };
+
+const editUser = async (req, res) => {
+  try {
+    const user = userModel.editUser(req.body);
+    return res.status(200).json({ success: true, user });
+  } catch (error) {
+    res.status(500).json({ success: false, error: "internal server error" });
+  }
+};
+
+const deleteUser = async () => {};
+
+export default { getAllUsers, getUser, editUser, createUser, deleteUser };

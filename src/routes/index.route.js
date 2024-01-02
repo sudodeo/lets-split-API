@@ -1,11 +1,6 @@
-const authRoutes = require("./auth.route");
-const healthRoute = require("./health.route");
-const expenseRoutes = require("./expense.route");
-const currenciesRoute = require("./currencies.route");
+import authRoutes from "./auth.route.js";
+import healthRoute from "./health.route.js";
+import expenseRoutes from "./expense.route.js";
+import currenciesRoute from "./currencies.route.js";
 
-module.exports = {
-  authRoutes,
-  healthRoute,
-  expenseRoutes,
-  currenciesRoute
-};
+export default { authRoutes, healthRoute, expenseRoutes, currenciesRoute };

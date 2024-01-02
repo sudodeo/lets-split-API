@@ -1,9 +1,10 @@
-const authRouter = require("express").Router();
-const userController = require("../controllers/user.controller");
-const authController = require("../controllers/auth.controller");
-const validateMiddleware = require("../middleware/validate.middleware");
-const authMiddleware = require("../middleware/auth.middleware");
-const { check, body } = require("express-validator");
+import { Router } from "express";
+import userController from "../controllers/user.controller.js";
+import authController from "../controllers/auth.controller.js";
+import validateMiddleware from "../middleware/validate.middleware.js";
+import authMiddleware from "../middleware/auth.middleware.js";
+import { check } from "express-validator";
+const authRouter = Router();
 
 /**
  * @swagger
@@ -208,4 +209,4 @@ authRouter.post("/forgot-password", authController.forgotPassword);
  */
 authRouter.post("/reset-password/:token", authController.resetPassword);
 
-module.exports = authRouter;
+export default authRouter;

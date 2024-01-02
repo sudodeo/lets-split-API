@@ -1,13 +1,19 @@
-const express = require("express"),
-  helmet = require("helmet"),
-  cors = require("cors"),
-  cookieParser = require("cookie-parser"),
-  morgan = require("morgan"),
-  compression = require("compression"),
-  responseTime = require("response-time"),
-  swaggerJsdoc = require("swagger-jsdoc"),
-  swaggerUi = require("swagger-ui-express"),
-  routes = require("./routes/index.route");
+import express from "express";
+import helmet from "helmet";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+import morgan from "morgan";
+import compression from "compression";
+import responseTime from "response-time";
+import swaggerJsdoc from "swagger-jsdoc";
+import swaggerUi from "swagger-ui-express";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
+
+import routes from "./routes/index.route.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const app = express();
 
@@ -59,8 +65,8 @@ app.use(
   swaggerUi.setup(spec, { explorer: true })
 );
 
-app.get("/", (req, res) => {
+app.get("/", (_, res) => {
   res.redirect("/api/docs");
 });
 
-module.exports = app;
+export default app;

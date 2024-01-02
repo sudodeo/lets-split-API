@@ -1,11 +1,13 @@
-const pool = require("../../db/connection");
+import pool from "../../db/connection.js";
 
-exports.getCurrencies = async () => {
+const getCurrencies = async () => {
   const client = await pool.connect();
   try {
-    results = await client.query("SELECT currency_code FROM currencies;");
+    let results = await client.query("SELECT currency_code FROM currencies;");
     return results.rows;
   } catch (error) {
     throw error;
   }
 };
+
+export default { getCurrencies };

@@ -1,9 +1,9 @@
-const { DB_USER, DB_NAME, DB_PASSWORD, DB_PORT, DB_HOST } = require("./index")
+import { DB_USER, DB_NAME, DB_PASSWORD, DB_PORT, DB_HOST } from "./index.js";
 
-module.exports = {
-  user: DB_USER,
-  host: DB_HOST,
-  database: DB_NAME,
-  password: DB_PASSWORD,
-  port: DB_PORT,
+export {
+  DB_USER as user,
+  DB_HOST as host,
+  DB_NAME as database,
+  DB_PASSWORD as password,
+  DB_PORT as port,
 };
