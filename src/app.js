@@ -1,6 +1,7 @@
 const express = require("express"),
   helmet = require("helmet"),
   cors = require("cors"),
+  cookieParser = require("cookie-parser"),
   morgan = require("morgan"),
   compression = require("compression"),
   responseTime = require("response-time"),
@@ -11,6 +12,7 @@ const express = require("express"),
 const app = express();
 
 app.use(express.json());
+app.use(cookieParser());
 app.use(cors());
 app.use(helmet());
 app.use(compression());
@@ -25,7 +27,7 @@ if (process.env.NODE_ENV === "dev") {
 app.use("/api/auth", routes.authRoutes);
 app.use("/api/expenses", routes.expenseRoutes);
 app.use("/api/health", routes.healthRoute);
-app.use("/api/currencies", routes.currenciesRoute)
+app.use("/api/currencies", routes.currenciesRoute);
 
 const options = {
   definition: {
