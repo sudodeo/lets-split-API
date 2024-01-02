@@ -11,6 +11,7 @@ import { fileURLToPath } from "url";
 import { dirname } from "path";
 
 import routes from "./routes/index.route.js";
+import httpMethodHandler from "./middleware/httpMethodHandler.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -29,6 +30,8 @@ if (process.env.NODE_ENV === "dev") {
 } else if (process.env.NODE_ENV === "prod") {
   app.use(morgan("combined"));
 }
+
+app.use(httpMethodHandler);
 
 app.use("/api/auth", routes.authRoutes);
 app.use("/api/expenses", routes.expenseRoutes);
@@ -72,8 +75,8 @@ app.get("/", (_, res) => {
 // Error handler for routes that fall through
 app.use((_, res) => {
   res.status(404).json({
-    error: 'Not Found',
-    message: 'The requested resource was not found on this server',
+    error: "Not Found",
+    message: "The requested resource was not found on this server",
   });
 });
 
