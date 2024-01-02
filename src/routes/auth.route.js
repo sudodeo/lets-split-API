@@ -1,6 +1,9 @@
 const authRouter = require("express").Router();
 const userController = require("../controllers/user.controller");
 const authController = require("../controllers/auth.controller");
+const validateMiddleware = require("../middleware/validate.middleware");
+const authMiddleware = require("../middleware/auth.middleware");
+const { check, body } = require("express-validator");
 
 /**
  * @swagger
@@ -61,7 +64,32 @@ const authController = require("../controllers/auth.controller");
  *               "error": "internal server error"
  *              }
  */
-authRouter.post("/register", userController.createUser);
+authRouter.post(
+  "/register",
+  check("email")
+    .exists()
+    .notEmpty()
+    .trim()
+    .isEmail()
+    .normalizeEmail()
+    .withMessage("invalid email address"),
+  check("firstName").exists().notEmpty().trim().exists(),
+  check("lastName").exists().notEmpty().trim().exists(),
+  check("dob")
+    .exists()
+    .notEmpty()
+    .trim()
+    .exists()
+    .isDate()
+    .withMessage("invalid date.  use YYYY-MM-DD format"),
+  check("password")
+    .trim()
+    .exists()
+    .isStrongPassword()
+    .withMessage("password not strong enough"),
+  validateMiddleware.validateInput,
+  userController.createUser
+);
 
 /**
  * @swagger
@@ -81,7 +109,14 @@ authRouter.post("/register", userController.createUser);
  *      400:
  *        description:  bad request body
  */
-authRouter.post("/login", authController.login);
+authRouter.post(
+  "/login",
+  check("email").exists().notEmpty().isEmail().normalizeEmail(),
+  check("password").exists().notEmpty(),
+  validateMiddleware.validateInput,
+  authMiddleware.authenticateToken,
+  authController.login
+);
 
 /**
  * @swagger
@@ -125,7 +160,11 @@ authRouter.post("/logout", authController.logout);
  *      400:
  *        description:  bad request body
  */
-authRouter.post("/refresh", authController.refreshToken);
+authRouter.post(
+  "/refresh",
+  authMiddleware.authenticateToken,
+  authController.refreshToken
+);
 
 /**
  * @swagger
