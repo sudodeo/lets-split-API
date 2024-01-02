@@ -5,8 +5,8 @@ const hashPassword = async (unhashedPassword) => {
   return await bcrypt.hash(unhashedPassword, salt);
 };
 
-const compareHash = async (newHash, oldHash) => {
-  return await bcrypt.compare(newHash, oldHash);
+const compareHash = async (plainPassword, hashedPassword) => {
+  return await bcrypt.compare(plainPassword, hashedPassword);
 };
 
 export default { hashPassword, compareHash };
