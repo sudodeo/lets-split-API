@@ -12,7 +12,8 @@ Coming soon...
 
 Explore the API endpoints and test requests using the Swagger documentation by accessing the docs at `http://localhost:{PORT set in .env}/api/docs`
 
-**Endpoints**\
+**Endpoints**
+
 POST `/api/auth/register`: Register a new user account.\
 POST `/api/auth/login`: Authenticate user login.\
 POST `/api/expenses`: Create a new expense entry.\
