@@ -10,6 +10,7 @@ const {
   DB_PORT,
   JWT_SECRET,
   NODE_ENV,
+  TEST_SERVER,
 } = process.env;
 
 export {
@@ -21,4 +22,5 @@ export {
   DB_PORT,
   JWT_SECRET,
   NODE_ENV,
+  TEST_SERVER as testServer,
 };
