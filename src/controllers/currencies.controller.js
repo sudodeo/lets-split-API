@@ -1,3 +1,4 @@
+import logger from "../config/loggerConfig.js";
 import currenciesModel from "../models/currencies.model.js";
 
 const getCurrencies = async (_req, res) => {
@@ -9,7 +10,7 @@ const getCurrencies = async (_req, res) => {
       success: false,
       error: "internal server error",
     });
-    console.error(error);
+    logger.error(`currenciesController error: ${error}`);
   }
 };
 

@@ -1,3 +1,4 @@
+import logger from "../config/loggerConfig.js";
 import userModel from "../models/user.model.js";
 import userService from "../services/user.service.js";
 import { validationResult } from "express-validator";
@@ -11,7 +12,7 @@ const getAllUsers = async (req, res) => {
       message: "error occured, could not fetch users",
     });
 
-    console.error(error);
+    logger.error(`getAllUsers error: ${error}`);
   }
 };
 
@@ -23,7 +24,7 @@ const getUser = async (req, res) => {
     res.status(500).json({
       message: "error occured, could not create user",
     });
-    console.error(error);
+    logger.error(`getUser error: ${error}`);
   }
 };
 
@@ -60,7 +61,7 @@ const createUser = async (req, res) => {
     res.status(500).json({
       message: "error occured, could not create user",
     });
-    console.error(error);
+    logger.error(`createUser error: ${error}`);
   }
 };
 

@@ -1,4 +1,5 @@
 import pool from "../../db/connection.js";
+import logger from "../config/loggerConfig.js";
 
 const getAllUsers = async () => {
   const client = await pool.connect();
@@ -6,6 +7,7 @@ const getAllUsers = async () => {
     const result = await client.query("SELECT * FROM users;");
     return result.rows;
   } catch (error) {
+    logger.error(`getAllUsers db error: ${error}`);
     return { users: [], error };
   } finally {
     client.release();
@@ -20,7 +22,7 @@ const getUser = async (email) => {
     ]);
     return result.rows[0];
   } catch (error) {
-    console.log(error);
+    logger.error(`getUser db error: ${error}`);
     throw error;
   } finally {
     client.release();
@@ -44,6 +46,7 @@ const createUser = async (userData) => {
 
     return result.rows[0];
   } catch (error) {
+    logger.error(`createUser db error: ${error}`);
     throw error;
   } finally {
     client.release();
@@ -59,6 +62,7 @@ const editUser = async (data) => {
 
     return;
   } catch (error) {
+    logger.error(`editUser db error: ${error}`);
     throw error;
   }
 };
