@@ -55,15 +55,20 @@ const createUser = async (userData) => {
 
 const editUser = async (data) => {
   const client = await pool.connect();
-  const keys = data.keys;
-  const values = data.values;
+  const keys = Object.keys(data);
   try {
-    const result = await client.query("UPDATE users");
+    const setClause = keys.map((key) => `${key}='${data[key]}'`).join(", ");
 
-    return;
+    const query = `UPDATE users SET ${setClause} WHERE email ='${data.email}' RETURNING *;`;
+
+    const result = await client.query(`${query}`);
+
+    return result.rows[0];
   } catch (error) {
     logger.error(`editUser db error: ${error}`);
     throw error;
+  } finally {
+    client.release();
   }
 };
 
