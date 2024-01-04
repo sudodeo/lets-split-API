@@ -12,6 +12,15 @@ CREATE TABLE "users" (
   "created_at" timestamp DEFAULT (CURRENT_TIMESTAMP)
 );
 
+CREATE TABLE tokens (
+  id SERIAL PRIMARY KEY,
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  token_type VARCHAR(50) NOT NULL,
+  token_hash VARCHAR(255) NOT NULL,
+  expiration_timestamp timestamp NOT NULL,
+  created_at timestamp DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE "expenses" (
   "id" UUID UNIQUE PRIMARY KEY NOT NULL DEFAULT (gen_random_uuid()),
   "amount" decimal NOT NULL,
@@ -50,9 +59,9 @@ CREATE TABLE "user_sessions" (
 )
 WITH (OIDS=FALSE);
 
-ALTER TABLE "session" ADD CONSTRAINT "session_pkey" PRIMARY KEY ("sid") NOT DEFERRABLE INITIALLY IMMEDIATE;
+ALTER TABLE "user_sessions" ADD CONSTRAINT "session_pkey" PRIMARY KEY ("sid") NOT DEFERRABLE INITIALLY IMMEDIATE;
 
-CREATE INDEX "IDX_session_expire" ON "session" ("expire");
+CREATE INDEX "IDX_session_expire" ON "user_sessions" ("expire");
 
 ALTER TABLE "expenses" ADD FOREIGN KEY ("currency_code_id") REFERENCES "currencies" ("id");
 

@@ -8,7 +8,7 @@ Welcome to the Lets Split App API documentation. This API is designed to simplif
 
 ## Features
 
-C**ore Features**
+**Core Features**
 
 1. User Authentication and Registration:
    - Secure user registration and authentication processes.
