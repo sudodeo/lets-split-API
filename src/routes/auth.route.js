@@ -90,7 +90,7 @@ authRouter.post(
     .isStrongPassword()
     .withMessage("password not strong enough"),
   validateMiddleware.validateInput,
-  userController.createUser
+  authController.register
 );
 
 /**
@@ -119,6 +119,13 @@ authRouter.post(
   authController.login
 );
 
+authRouter.post(
+  "/verify/:token",
+  check("email").exists().notEmpty().isEmail().normalizeEmail(),
+  validateMiddleware.validateInput,
+  authController.verifyEmail
+);
+
 /**
  * @swagger
  *
@@ -137,7 +144,7 @@ authRouter.post(
  *      400:
  *        description:  bad request body
  */
-authRouter.post("/logout", authController.logout);
+authRouter.post("/logout", authMiddleware.isAuth, authController.logout);
 
 /**
  * @swagger
@@ -213,6 +220,7 @@ authRouter.post(
  */
 authRouter.post(
   "/reset-password/:token",
+  check("email").exists().notEmpty().isEmail().normalizeEmail(),
   check("confirmPassword").exists().notEmpty(),
   check("password").exists().notEmpty(),
   authController.resetPassword
