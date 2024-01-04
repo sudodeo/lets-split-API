@@ -11,6 +11,10 @@ const {
   JWT_SECRET,
   NODE_ENV,
   TEST_SERVER,
+  SESSION_SECRET,
+  CLIENT_URL,
+  GMAIL_USERNAME,
+  GMAIL_APP_PASSWORD,
 } = process.env;
 
 export {
@@ -23,4 +27,8 @@ export {
   JWT_SECRET,
   NODE_ENV,
   TEST_SERVER as testServer,
+  SESSION_SECRET,
+  CLIENT_URL,
+  GMAIL_USERNAME,
+  GMAIL_APP_PASSWORD,
 };
