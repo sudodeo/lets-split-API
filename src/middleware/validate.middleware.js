@@ -11,4 +11,4 @@ const validateInput = async (req, res, next) => {
   next();
 };
 
-export default {validateInput}
+export default { validateInput };
