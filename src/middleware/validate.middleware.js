@@ -6,7 +6,7 @@ const validateInput = async (req, res, next) => {
     let error = {};
     let errors = result.errors;
     errors.map((err) => (error[err.path] = err.msg));
-    return res.status(422).json({ error });
+    return res.status(400).json({ success: false, error });
   }
   next();
 };
