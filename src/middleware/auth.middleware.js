@@ -10,7 +10,7 @@ const authenticateToken = async (req, res, next) => {
     const decoded = authService.verify(token);
     if (decoded.iss !== "authService") {
     }
-    if (decoded.aud !== "LetsSplitApp") {
+    if (decoded.aud !== "SplitEase") {
       return res
         .status(401)
         .json({ success: false, error: "Invalid audience." });

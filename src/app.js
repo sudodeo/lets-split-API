@@ -63,7 +63,7 @@ const options = {
   definition: {
     openapi: "3.1.0",
     info: {
-      title: "Lets Split API",
+      title: "SplitEase API",
       version: "1.0.0",
       description:
         "API for an expense splitting app designed to simplify and streamline the process of splitting expenses among friends, family, or colleagues.",

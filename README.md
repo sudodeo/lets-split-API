@@ -1,6 +1,6 @@
-# Lets-Split-API Documentation
+# SplitEase-API Documentation
 
-Welcome to the Lets Split App API documentation. This API is designed to simplify and streamline the process of splitting expenses among friends, family, or colleagues.
+Welcome to the SplitEase API documentation. This API is designed to simplify and streamline the process of splitting expenses among friends, family, or colleagues.
 
 ## Database Schema
 
@@ -78,13 +78,13 @@ Before you begin, ensure you have the following installed:
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/sudodeo/lets-split-API.git
+   git clone https://github.com/sudodeo/splitease-API.git
    ```
 
 2. Install dependencies:
 
    ```bash
-   cd lets-split-API
+   cd splitease-API
    npm install
    ```
 
