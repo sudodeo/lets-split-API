@@ -7,14 +7,19 @@ import compression from "compression";
 import responseTime from "response-time";
 import swaggerJsdoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
+import session from "express-session";
+import ConnectPg from "connect-pg-simple";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 
 import routes from "./routes/index.route.js";
 import httpMethodHandler from "./middleware/httpMethodHandler.js";
+import { SESSION_SECRET } from "./config/index.js";
+import pool from "../db/connection.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+const pgSession = ConnectPg(session);
 
 const app = express();
 
@@ -24,11 +29,27 @@ app.use(cors());
 app.use(helmet());
 app.use(compression());
 app.use(responseTime());
+app.use(
+  session({
+    store: new pgSession({
+      pool,
+      tableName: "user_sessions",
+    }),
+    secret: SESSION_SECRET, // generated using node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      maxAge: 3600000, // 1 hour
+    },
+  })
+);
 
 if (process.env.NODE_ENV === "dev") {
   app.use(morgan("dev"));
 } else if (process.env.NODE_ENV === "prod") {
   app.use(morgan("combined"));
+  app.set("trust proxy", 1); // trust first proxy
+  sess.cookie.secure = true; // serve secure cookies
 }
 
 app.use(httpMethodHandler);
@@ -75,8 +96,8 @@ app.get("/", (_, res) => {
 // Error handler for routes that fall through
 app.use((_, res) => {
   res.status(404).json({
-    error: "Not Found",
-    message: "The requested resource was not found on this server",
+    success: false,
+    error: "The requested resource was not found on this server",
   });
 });
 
