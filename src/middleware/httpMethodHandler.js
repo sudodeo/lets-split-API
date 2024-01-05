@@ -47,6 +47,7 @@ const httpMethodHandler = async (req, res, next) => {
 
   if (!allowedMethods.includes(req.method)) {
     return res.status(405).json({
+      success: false,
       error: "Method Not Allowed",
       message: `The requested method ${req.method} is not allowed for this endpoint.`,
       allowedMethods,
