@@ -83,12 +83,16 @@ authRouter.post(
     .trim()
     .exists()
     .isDate()
-    .withMessage("invalid date.  use YYYY-MM-DD format"),
+    .withMessage("invalid date. use YYYY-MM-DD format"),
   check("password")
     .trim()
     .exists()
     .isStrongPassword()
     .withMessage("password not strong enough"),
+  check("confirmPassword")
+    .exists()
+    .custom((value, { req }) => value === req.body.password)
+    .withMessage("passwords do not match"),
   validateMiddleware.validateInput,
   authController.register
 );
@@ -221,8 +225,14 @@ authRouter.post(
 authRouter.post(
   "/reset-password/:token",
   check("email").exists().notEmpty().isEmail().normalizeEmail(),
-  check("confirmPassword").exists().notEmpty(),
-  check("password").exists().notEmpty(),
+  check("password")
+    .exists()
+    .trim()
+    .isStrongPassword()
+    .withMessage("password not strong enough"),
+  check("confirmPassword")
+    .exists()
+    .custom((value, { req }) => value === req.body.password),
   authController.resetPassword
 );
 
