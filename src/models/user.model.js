@@ -53,7 +53,7 @@ const createUser = async (userData) => {
   }
 };
 
-const editUser = async (data) => {
+const updateUser = async (data) => {
   const client = await pool.connect();
   const keys = Object.keys(data);
   try {
@@ -65,11 +65,11 @@ const editUser = async (data) => {
 
     return result.rows[0];
   } catch (error) {
-    logger.error(`editUser db error: ${error}`);
+    logger.error(`updateUser db error: ${error}`);
     throw error;
   } finally {
     client.release();
   }
 };
 
-export default { getAllUsers, getUser, createUser, editUser };
+export default { getAllUsers, getUser, createUser, updateUser };

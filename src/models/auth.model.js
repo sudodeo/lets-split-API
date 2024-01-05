@@ -40,7 +40,7 @@ const deleteToken = async (user_id) => {
   try {
     await client.query("DELETE FROM tokens WHERE user_id=$1;", [user_id]);
   } catch (error) {
-    console.error("Error deleting token:", error);
+    logger.error("Error deleting token:", error);
     throw error;
   } finally {
     client.release();

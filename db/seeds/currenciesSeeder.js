@@ -1,4 +1,5 @@
 import pool from "../connection.js";
+import logger from "../../src/config/loggerConfig.js";
 
 const currencies = ["NGN", "USD", "GBP"];
 
@@ -21,15 +22,15 @@ const seedDatabase = async () => {
         if (error.code === "23505") {
           continue;
         } else {
-          console.error(error);
+          logger.error(`currency insert error: ${error}`);
           throw error;
         }
       }
     }
 
-    console.log("Database seeded successfully!");
+    logger.info("Database seeded successfully!");
   } catch (error) {
-    console.error("Error seeding database:", error.message);
+    logger.error("Error seeding database:", error.message);
   } finally {
     client.release();
   }

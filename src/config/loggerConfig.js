@@ -43,6 +43,7 @@ const logger = winston.createLogger({
     // })
     winston.format.prettyPrint(),
     winston.format.align(),
+    winston.format.colorize({ level: true, colors: customColors }),
     winston.format.printf(
       (info) => `[${info.timestamp}] ${info.level}: ${info.message}`
     )
