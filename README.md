@@ -1,6 +1,6 @@
-# SplitEase-API Documentation
+# SplitCrew-API Documentation
 
-Welcome to the SplitEase API documentation. This API is designed to simplify and streamline the process of splitting expenses among friends, family, or colleagues.
+Welcome to the SplitCrew API documentation. This API is designed to simplify and streamline the process of splitting expenses among friends, family, or colleagues.
 
 ## Database Schema
 
@@ -12,6 +12,7 @@ Welcome to the SplitEase API documentation. This API is designed to simplify and
 
 1. User Authentication and Registration:
    - Secure user registration and authentication processes.
+   - Email verification and password reset.
 2. Expense Management:
    - Allow users to add shared expenses.
    - Provide a list of all expenses.
@@ -78,13 +79,13 @@ Before you begin, ensure you have the following installed:
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/sudodeo/splitease-API.git
+   git clone https://github.com/sudodeo/splitcrew-API.git
    ```
 
 2. Install dependencies:
 
    ```bash
-   cd splitease-API
+   cd splitcrew-API
    npm install
    ```
 

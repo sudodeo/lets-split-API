@@ -10,13 +10,13 @@ const authenticateToken = async (req, res, next) => {
     const decoded = authService.verify(token);
     if (decoded.iss !== "authService") {
     }
-    if (decoded.aud !== "SplitEase") {
+    if (decoded.aud !== "SplitCrew") {
       return res
         .status(401)
         .json({ success: false, error: "Invalid audience." });
     }
 
-    req.userData = decoded;
+    req.user = decoded;
     next();
   } catch (error) {
     logger.error(`authenticateToken error: ${error}`);

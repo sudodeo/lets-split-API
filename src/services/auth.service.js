@@ -38,7 +38,7 @@ const generateJwt = (id) => {
       sub: id,
       iat: new Date().getTime(),
       iss: "authService",
-      aud: "SplitEase",
+      aud: "SplitCrew",
     },
     JWT_SECRET,
     { expiresIn: maxAge }
