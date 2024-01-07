@@ -32,7 +32,7 @@ const getAllowedMethodsForEndpoint = (path) => {
         return ["POST"];
       } else if (/^\/api\/users\/[^/]+$/.test(path)) {
         // Check for the user pattern with userID
-        return ["GET", "DELETE", "PUT"];
+        return ["GET", "DELETE", "PATCH"];
       }
       return [];
   }
