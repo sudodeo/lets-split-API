@@ -29,11 +29,11 @@ const authenticateToken = async (req, res, next) => {
   next();
 };
 
-const isAuth = async (req, res, next) => {
-  if (!req.session.isAuth) {
-    return res.status(401).json({ success: false, error: "unauthorised" });
-  }
-  next();
-};
+// const isAuth = async (req, res, next) => {
+//   if (!req.session.isAuth) {
+//     return res.status(401).json({ success: false, error: "unauthorised" });
+//   }
+//   next();
+// };
 
-export default { authenticateToken, isAuth };
+export default { authenticateToken };

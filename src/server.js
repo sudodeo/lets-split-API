@@ -1,5 +1,5 @@
 import app from "./app.js";
-import { seedDatabase } from "../db/seeds/currenciesSeeder.js";
+import seedDatabase  from "../db/seeds/seeder.js";
 import logger from "./config/loggerConfig.js";
 
 import { PORT } from "./config/index.js";

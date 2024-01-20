@@ -75,7 +75,9 @@ const verifyEmail = async (req, res) => {
     const currentTimestamp = new Date().getTime();
 
     // Check if the provided token is invalid
-    if (existingToken && existingToken !== token) {
+    console.log(existingToken.token_hash);
+    console.log(token);
+    if (existingToken && existingToken.token_hash !== token) {
       return res.status(409).json({ success: false, error: "Invalid token" });
     }
 
@@ -135,24 +137,40 @@ const login = async (req, res) => {
     }
 
     if (!user.is_verified) {
-      const verifyToken = await authService.sendVerificationMail(
-        user.first_name,
-        user.email
-      );
-      if (verifyToken === "") {
-        return res.status(500).json({
-          success: false,
-          error: "internal server error",
-        });
-      }
+      const existingToken = await authModel.retrieveToken(user.id);
+      const currentTimestamp = new Date().getTime();
 
-      const expiration_timestamp = new Date().getTime() + 24 * 60 * 60 * 1000; // 1 hour (converted to milliseconds)
-      await authModel.storeToken(
-        user.id,
-        verifyToken,
-        expiration_timestamp,
-        "email"
-      );
+      // // Check if the provided token is invalid
+      // console.log(existingToken.token_hash)
+      // console.log(token)
+      // if (existingToken && existingToken.token_hash !== token) {
+      //   return res.status(409).json({ success: false, error: "Invalid token" });
+      // }
+
+      // Check if the token has expired
+      if (
+        !existingToken ||
+        currentTimestamp > existingToken.expiration_timestamp
+      ) {
+        const verifyToken = await authService.sendVerificationMail(
+          user.first_name,
+          user.email
+        );
+        if (verifyToken === "") {
+          return res.status(500).json({
+            success: false,
+            error: "internal server error, could not send token",
+          });
+        }
+
+        const expiration_timestamp = new Date().getTime() + 24 * 60 * 60 * 1000; // 1 hour (converted to milliseconds)
+        await authModel.storeToken(
+          user.id,
+          verifyToken,
+          expiration_timestamp,
+          "email"
+        );
+      }
 
       return res.status(401).json({
         success: false,
@@ -164,7 +182,7 @@ const login = async (req, res) => {
     const token = await authService.generateJwt(user.id);
     res.cookie("jwt", token);
     res.setHeader("Authorization", `Bearer ${token}`);
-    req.session.isAuth = true;
+    // req.session.isAuth = true;
 
     res.status(201).json({ success: true, token });
   } catch (error) {
@@ -184,7 +202,7 @@ const forgotPassword = async (req, res) => {
 
     const existingToken = await authModel.retrieveToken(user.id);
     const currentTimestamp = new Date().getTime();
-    
+
     // Check if a reset token has already been sent recently
     if (
       existingToken &&
@@ -245,8 +263,8 @@ const resetPassword = async (req, res) => {
       return res.status(404).json({ success: false, error: "user not found" });
     }
 
-    const hashedToken = await authModel.retrieveToken(user.id);
-    if (!hashedToken || token != hashedToken) {
+    const existingToken = await authModel.retrieveToken(user.id);
+    if (!existingToken || token != existingToken.token_hash) {
       return res.status(401).json({ success: false, error: "invalid token" });
     }
 

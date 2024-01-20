@@ -5,25 +5,33 @@ import authMiddleware from "../middleware/auth.middleware.js";
 
 const expenseRouter = Router();
 
-expenseRouter.get("/", authMiddleware.isAuth, expenseController.getAllExpenses);
+expenseRouter.get(
+  "/",
+  authMiddleware.authenticateToken,
+  expenseController.getAllExpenses
+);
 
 expenseRouter.get(
   "/:expenseID",
-  authMiddleware.isAuth,
+  authMiddleware.authenticateToken,
   expenseController.getExpense
 );
 
 expenseRouter.get(
   "/expense-summary",
-  authMiddleware.isAuth,
+  authMiddleware.authenticateToken,
   expenseController.getExpenseSummary
 );
 
-expenseRouter.post("/", authMiddleware.isAuth, expenseController.createExpense);
+expenseRouter.post(
+  "/",
+  authMiddleware.authenticateToken,
+  expenseController.createExpense
+);
 
 expenseRouter.post(
   "/settle-expense",
-  authMiddleware.isAuth,
+  authMiddleware.authenticateToken,
   expenseController.settleExpense
 );
 

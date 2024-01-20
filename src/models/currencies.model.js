@@ -7,7 +7,23 @@ const getCurrencies = async () => {
     return results.rows;
   } catch (error) {
     throw error;
+  } finally {
+    client.release;
   }
 };
 
-export default { getCurrencies };
+const getCurrency = async (currencyCode) => {
+  const client = await pool.connect();
+  try {
+    const currency = await client.query(
+      "SELECT * FROM currencies WHERE currency_code=$1;",
+      [currencyCode]
+    );
+    return currency.rows[0];
+  } catch (error) {
+    throw error;
+  } finally {
+    client.release;
+  }
+};
+export default { getCurrencies, getCurrency };
