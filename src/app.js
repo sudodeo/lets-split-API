@@ -7,18 +7,15 @@ import compression from "compression";
 import responseTime from "response-time";
 import swaggerJsdoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
-import ConnectPg from "connect-pg-simple";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 
 import routes from "./routes/index.route.js";
 import httpMethodHandler from "./middleware/httpMethodHandler.js";
-import { SESSION_SECRET } from "./config/index.js";
 import pool from "../db/connection.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const pgSession = ConnectPg(session);
 
 const app = express();
 
@@ -39,10 +36,10 @@ if (process.env.NODE_ENV === "dev") {
 
 app.use(httpMethodHandler);
 
-app.use("/api/auth", routes.authRoutes);
-app.use("/api/expenses", routes.expenseRoutes);
-app.use("/api/health", routes.healthRoute);
-app.use("/api/currencies", routes.currenciesRoute);
+app.use("/api/v1/auth", routes.authRoutes);
+app.use("/api/v1/expenses", routes.expenseRoutes);
+app.use("/api/v1/health", routes.healthRoute);
+app.use("/api/v1/currencies", routes.currenciesRoute);
 
 const options = {
   definition: {
