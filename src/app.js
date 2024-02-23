@@ -39,36 +39,6 @@ app.use("/api/v1/expenses", routes.expenseRoutes);
 app.use("/api/v1/health", routes.healthRoute);
 app.use("/api/v1/currencies", routes.currenciesRoute);
 
-const options = {
-  definition: {
-    openapi: "3.1.0",
-    info: {
-      title: "SplitCrew API",
-      version: "1.0.0",
-      description:
-        "API for an expense splitting app designed to simplify and streamline the process of splitting expenses among friends, family, or colleagues.",
-      license: {
-        name: "MIT",
-        url: "https://spdx.org/licenses/MIT.html",
-      },
-      contact: {
-        name: "Deolu",
-        url: "https://sudodeo.vercel.app",
-        email: "sudodeo@gmail.com",
-      },
-    },
-  },
-  apis: [`${__dirname}/routes/*.route.js`],
-};
-
-const spec = swaggerJsdoc(options);
-
-app.use(
-  "/api/docs",
-  swaggerUi.serve,
-  swaggerUi.setup(spec, { explorer: true })
-);
-
 app.get("/", (_, res) => {
   res.redirect("/api/docs");
 });
