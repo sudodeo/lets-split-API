@@ -31,7 +31,6 @@ if (process.env.NODE_ENV === "dev") {
 } else if (process.env.NODE_ENV === "prod") {
   app.use(morgan("combined"));
   app.set("trust proxy", 1); // trust first proxy
-  sess.cookie.secure = true; // serve secure cookies
 }
 
 app.use(httpMethodHandler);
