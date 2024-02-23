@@ -5,8 +5,7 @@ import cookieParser from "cookie-parser";
 import morgan from "morgan";
 import compression from "compression";
 import responseTime from "response-time";
-import swaggerJsdoc from "swagger-jsdoc";
-import swaggerUi from "swagger-ui-express";
+import ConnectPg from "connect-pg-simple";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 
