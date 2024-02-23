@@ -7,7 +7,6 @@ import compression from "compression";
 import responseTime from "response-time";
 import swaggerJsdoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
-import session from "express-session";
 import ConnectPg from "connect-pg-simple";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
@@ -29,20 +28,6 @@ app.use(cors());
 app.use(helmet());
 app.use(compression());
 app.use(responseTime());
-app.use(
-  session({
-    store: new pgSession({
-      pool,
-      tableName: "user_sessions",
-    }),
-    secret: SESSION_SECRET, // generated using node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      maxAge: 3600000, // 1 hour
-    },
-  })
-);
 
 if (process.env.NODE_ENV === "dev") {
   app.use(morgan("dev"));
