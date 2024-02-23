@@ -47,9 +47,9 @@ Welcome to the SplitCrew API documentation. This API is designed to simplify and
 
 ## API Documentation
 
-**Swagger**
+**Postman**
 
-Explore the API endpoints and test requests using the Swagger documentation by accessing the docs at `http://localhost:{PORT set in .env}/api/docs`
+Explore the API endpoints and test requests using the Postman documentation by accessing the docs [here](https://documenter.getpostman.com/view/19461169/2sA2rCU2DK)
 
 **Endpoints**
 
@@ -62,7 +62,7 @@ POST `/api/expenses/settle-expense`: Mark an expense as settled.\
 GET `/api/currencies`: Retrieve supported currencies.
 ... and more.
 
-For detailed API documentation, visit Swagger API Documentation.
+For detailed API documentation, visit Postman API Documentation.
 
 ## Getting Started
 
@@ -98,8 +98,6 @@ Before you begin, ensure you have the following installed:
    ```bash
    npm start
    ```
-
-   The API server will be running at `http://localhost:{PORT set in .env}`.
 
 ## License
 
