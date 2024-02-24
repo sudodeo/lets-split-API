@@ -1,12 +1,8 @@
 import winston from "winston";
 import path from "path";
-import { fileURLToPath } from "url";
-import { dirname } from "path";
 
-import { NODE_ENV } from "./index.js";
+import { NODE_ENV } from "./index";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 const logDirectory = path.join(__dirname, "../../logs");
 
@@ -22,12 +18,12 @@ let level = "info";
 if (NODE_ENV === "dev") {
   level = "debug";
 }
-const errorStackTracerFormat = winston.format((info) => {
-  if (info.meta && info.meta instanceof Error) {
-    info.message = `${info.message} ${info.meta.stack}`;
-  }
-  return info;
-});
+// const errorStackTracerFormat = winston.format((info) => {
+//   if (info.meta && info.meta instanceof Error) {
+//     info.message = `${info.message} ${info.meta.stack}`;
+//   }
+//   return info;
+// });
 
 const logger = winston.createLogger({
   level,

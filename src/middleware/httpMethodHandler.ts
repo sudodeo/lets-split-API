@@ -1,27 +1,29 @@
+import { NextFunction, Request, Response } from "express";
+
 // Function to determine allowed methods for an endpoint
-const getAllowedMethodsForEndpoint = (path) => {
+const getAllowedMethodsForEndpoint = (path: string) => {
   switch (path) {
     case "/":
       return ["GET"];
-    case "/api/health":
+    case "/api/v1/health":
       return ["GET"];
-    case "/api/auth/register":
+    case "/api/v1/auth/register":
       return ["POST"];
-    case "/api/auth/login":
+    case "/api/v1/auth/login":
       return ["POST"];
-    case "/api/auth/logout":
+    case "/api/v1/auth/logout":
       return ["POST"];
-    case "/api/auth/refresh":
+    case "/api/v1/auth/refresh":
       return ["POST"];
-    case "/api/auth/forgot-password":
+    case "/api/v1/auth/forgot-password":
       return ["POST"];
-    case "/api/expenses":
+    case "/api/v1/expenses":
       return ["POST", "GET"];
-    case "/api/expenses/expense-summary":
+    case "/api/v1/expenses/expense-summary":
       return ["GET"];
-    case "/api/expenses/settle-expense":
+    case "/api/v1/expenses/settle-expense":
       return ["POST"];
-    case "/api/currencies":
+    case "/api/v1/currencies":
       return ["GET"];
     default:
       // Check for the reset-password pattern
@@ -38,7 +40,7 @@ const getAllowedMethodsForEndpoint = (path) => {
   }
 };
 
-const httpMethodHandler = async (req, res, next) => {
+const httpMethodHandler = async (req: Request, res:Response, next:NextFunction) => {
   const allowedMethods = getAllowedMethodsForEndpoint(req.path);
   if (allowedMethods.length === 0) {
     //endpoint does not exist

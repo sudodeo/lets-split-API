@@ -1,7 +1,8 @@
-import pool from "../../db/connection.js";
+import pool from "../../db/connection";
+import { Expense, ExpenseParticipant } from "../types/expense.types";
 
 // TODO: add queries for filtering search results
-const getAllExpenses = async (id) => {
+const getAllExpenses = async (id: string) => {
   const client = await pool.connect();
   try {
     const result = await client.query(
@@ -16,7 +17,7 @@ const getAllExpenses = async (id) => {
   }
 };
 
-const getCreatedExpenses = async (id) => {
+const getCreatedExpenses = async (id: string) => {
   const client = await pool.connect();
   try {
     const result = await client.query(
@@ -31,7 +32,7 @@ const getCreatedExpenses = async (id) => {
   }
 };
 
-const getExpense = async (id) => {
+const getExpense = async (id: string) => {
   const client = await pool.connect();
   try {
     const result = await client.query("SELECT * FROM expenses WHERE id=$1;", [
@@ -45,7 +46,7 @@ const getExpense = async (id) => {
   }
 };
 
-const createExpense = async (data) => {
+const createExpense = async (data: Expense) => {
   const client = await pool.connect();
   try {
     await client.query("BEGIN;");
@@ -72,7 +73,7 @@ const createExpense = async (data) => {
     //   },
     // ]);
     const expense_participants = data.participants.map(t);
-    function t(participant) {
+    function t(participant: ExpenseParticipant) {
       return {
         expense_id: `'${expenseID}'`,
         user_id: `'${participant.user_id}'`,
@@ -110,7 +111,7 @@ const createExpense = async (data) => {
       description: expense.description,
       created_at: expense.created_at,
       is_settled: expense.is_settled,
-      currency_code: data.currency_code,
+      currency_code_id: data.currency_code_id,
       participants: participants.rows,
     };
     console.log(participants);
@@ -124,7 +125,7 @@ const createExpense = async (data) => {
   }
 };
 
-const getExpenseSummary = async (expenseID) => {
+const getExpenseSummary = async (expenseID: string) => {
   const client = await pool.connect();
   try {
     await client.query(

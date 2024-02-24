@@ -1,13 +1,14 @@
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 
-import logger from "../config/loggerConfig.js";
-import { JWT_SECRET, CLIENT_URL } from "../config/index.js";
-import passwordUtil from "../utils/password.util.js";
-import userModel from "../models/user.model.js";
-import emailUtil from "../utils/emails/email.js";
+import logger from "../config/loggerConfig";
+import { JWT_SECRET, CLIENT_URL } from "../config/index";
+import passwordUtil from "../utils/password.util";
+import userModel from "../models/user.model";
+import emailUtil from "../utils/emails/email";
+import { User } from "../types/user.types";
 
-const registerUser = async (userData) => {
+const registerUser = async (userData: User) => {
   // Hash the password before storing it in the database
   userData.password = await passwordUtil.hashPassword(userData.password);
   const user = await userModel.createUser(userData);
@@ -15,7 +16,7 @@ const registerUser = async (userData) => {
   return user;
 };
 
-const sendVerificationMail = async (firstName, email) => {
+const sendVerificationMail = async (firstName: string, email: string) => {
   const verifyToken = await generateToken();
   const link = `${CLIENT_URL}/api/auth/verify/${verifyToken}`;
   const emailStatus = await emailUtil.sendEmail(
@@ -31,7 +32,7 @@ const sendVerificationMail = async (firstName, email) => {
   return verifyToken;
 };
 
-const generateJwt = (id) => {
+const generateJwt = (id: string) => {
   const maxAge = "1h";
   return jwt.sign(
     {
@@ -40,22 +41,26 @@ const generateJwt = (id) => {
       iss: "authService",
       aud: "SplitCrew",
     },
-    JWT_SECRET,
+    JWT_SECRET as string,
     { expiresIn: maxAge }
   );
 };
 
-const verifyJwt = (token) => {
+const verifyJwt = (token: string) => {
   let verified = false;
   try {
-    decoded = jwt.verify(token.replace("Bearer ", ""), JWT_SECRET);
+    let t = jwt.verify(
+      token.replace("Bearer ", ""),
+      JWT_SECRET as string
+    );
+    console.log(t);
   } catch (error) {
     logger.error(`verifyJwt error: ${error}`);
   }
   return verified;
 };
 
-const refreshJwt = (token) => {
+const refreshJwt = (_token: string) => {
   // TODO
 };
 

@@ -1,7 +1,12 @@
-import pool from "../../db/connection.js";
-import logger from "../config/loggerConfig.js";
+import pool from "../../db/connection";
+import logger from "../config/loggerConfig";
 
-const storeToken = async (user_id, token, expiration_timestamp, token_type) => {
+const storeToken = async (
+  user_id: string,
+  token: string,
+  expiration_timestamp: number,
+  token_type: string
+) => {
   const client = await pool.connect();
   try {
     console.log(typeof expiration_timestamp);
@@ -19,7 +24,7 @@ const storeToken = async (user_id, token, expiration_timestamp, token_type) => {
   }
 };
 
-const retrieveToken = async (user_id) => {
+const retrieveToken = async (user_id: string) => {
   const client = await pool.connect();
   try {
     const foundToken = await client.query(
@@ -35,7 +40,7 @@ const retrieveToken = async (user_id) => {
   }
 };
 
-const deleteToken = async (user_id) => {
+const deleteToken = async (user_id:string) => {
   const client = await pool.connect();
   try {
     await client.query("DELETE FROM tokens WHERE user_id=$1;", [user_id]);

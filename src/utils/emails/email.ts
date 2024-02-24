@@ -1,14 +1,10 @@
 import fs from "fs";
 import nodemailer from "nodemailer";
 import Handlebars from "handlebars";
-import { fileURLToPath } from "url";
-import path, { dirname } from "path";
+import path from "path";
 
-import { GMAIL_USERNAME, GMAIL_APP_PASSWORD } from "../../config/index.js";
-import logger from "../../config/loggerConfig.js";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+import { GMAIL_USERNAME, GMAIL_APP_PASSWORD } from "../../config/index";
+import logger from "../../config/loggerConfig";
 
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
@@ -21,7 +17,12 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-export const sendEmail = async (email, subject, payload, template) => {
+export const sendEmail = async (
+  email: string,
+  subject: string,
+  payload: Object,
+  template: string
+) => {
   const source = fs.readFileSync(path.join(__dirname, template), "utf8");
   const compiledTemplate = Handlebars.compile(source);
   const mailOptions = {
@@ -30,10 +31,10 @@ export const sendEmail = async (email, subject, payload, template) => {
     subject,
     html: compiledTemplate(payload),
   };
-  await transporter.sendMail(mailOptions, (error, info) => {
+  await transporter.sendMail(mailOptions, (error, _) => {
     if (error) {
       logger.error(error);
-      return "failed"
+      return "failed";
     }
   });
   return "sent";

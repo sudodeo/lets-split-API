@@ -1,10 +1,18 @@
-import logger from "../config/loggerConfig.js";
-import expenseModel from "../models/expense.model.js";
-import currencyModel from "../models/currencies.model.js";
+import logger from "../config/loggerConfig";
+import expenseModel from "../models/expense.model";
+import currencyModel from "../models/currencies.model";
+import { Request, Response } from "express";
 
-const getAllExpenses = async (req, res) => {
+const getAllExpenses = async (req: Request, res:Response) => {
   const { created } = req.query;
-  const user_id = req.user.id;
+
+  const authUser = req.user;
+
+  if (authUser == null) {
+    return res.status(401).json({ success: false, error: "unauthorised" });
+  }
+
+  const user_id = authUser.id;
   let expenses = "";
   try {
     if (created && created === "true") {
@@ -21,7 +29,7 @@ const getAllExpenses = async (req, res) => {
   }
 };
 
-const getExpense = async (req, res) => {
+const getExpense = async (req: Request, res:Response) => {
   try {
     const { expenseID } = req.params;
     const expense = await expenseModel.getExpense(expenseID);
@@ -39,7 +47,7 @@ const getExpense = async (req, res) => {
   }
 };
 
-const createExpense = async (req, res) => {
+const createExpense = async (req: Request, res:Response) => {
   try {
     // Check if the currency is supported
     const currency = await currencyModel.getCurrency(req.body.currency_code);
@@ -60,15 +68,14 @@ const createExpense = async (req, res) => {
     return res.status(201).json({ success: true, expense });
   } catch (error) {
     logger.error(`createExpense error: ${error}`);
-
     return res
       .status(500)
       .json({ success: false, error: "Internal server error" });
   }
 };
 
-const getExpenseSummary = async (req, res) => {};
-const settleExpense = async (req, res) => {};
+const getExpenseSummary = async (_req: Request, _res:Response) => {};
+const settleExpense = async (_req: Request, _res:Response) => {};
 
 export default {
   getAllExpenses,
