@@ -1,14 +1,15 @@
 import { validationResult } from "express-validator";
 
-import logger from "../config/loggerConfig.js";
-import passwordUtil from "../utils/password.util.js";
-import emailUtil from "../utils/emails/email.js";
-import userModel from "../models/user.model.js";
-import authModel from "../models/auth.model.js";
-import authService from "../services/auth.service.js";
-import { CLIENT_URL } from "../config/index.js";
+import logger from "../config/loggerConfig";
+import passwordUtil from "../utils/password.util";
+import emailUtil from "../utils/emails/email";
+import userModel from "../models/user.model";
+import authModel from "../models/auth.model";
+import authService from "../services/auth.service";
+import { CLIENT_URL } from "../config/index";
+import { Request, Response } from "express";
 
-const register = async (req, res) => {
+const register = async (req: Request, res: Response) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -28,7 +29,7 @@ const register = async (req, res) => {
     // Convert to local time zone and format the date as YYYY-MM-DD, because for some reason, node-postgres converts the date to UTC when it reads  from the database
     user.dob = new Date(user.dob).toLocaleDateString("en-CA");
     // don't send hashed password to client
-    delete user.password;
+    const userJSON = { ...user, password: undefined };
 
     const verifyToken = await authService.sendVerificationMail(
       user.first_name,
@@ -50,7 +51,7 @@ const register = async (req, res) => {
       "email"
     );
 
-    res.status(201).json({ success: true, user });
+    res.status(201).json({ success: true, user:userJSON });
   } catch (error) {
     logger.error(`createUser error: ${error}`);
 
@@ -61,7 +62,7 @@ const register = async (req, res) => {
   }
 };
 
-const verifyEmail = async (req, res) => {
+const verifyEmail = async (req: Request, res: Response) => {
   try {
     const { token } = req.params;
     const { email } = req.body;
@@ -118,7 +119,7 @@ const verifyEmail = async (req, res) => {
   }
 };
 
-const login = async (req, res) => {
+const login = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
     const user = await userModel.getUser(email);
@@ -192,7 +193,7 @@ const login = async (req, res) => {
   }
 };
 
-const forgotPassword = async (req, res) => {
+const forgotPassword = async (req: Request, res: Response) => {
   try {
     const { email } = req.body;
     const user = await userModel.getUser(email);
@@ -253,7 +254,7 @@ const forgotPassword = async (req, res) => {
   }
 };
 
-const resetPassword = async (req, res) => {
+const resetPassword = async (req: Request, res: Response) => {
   try {
     const { token } = req.params;
     const { password, email } = req.body;
@@ -268,14 +269,14 @@ const resetPassword = async (req, res) => {
       return res.status(401).json({ success: false, error: "invalid token" });
     }
 
-    const currentTimestamp = new Date().getTime();
-    if (currentTimestamp > hashedToken.expiration_timestamp) {
-      await authModel.deleteToken(user.id);
-      return res.status(400).json({
-        success: false,
-        error: "token expired, request for another one",
-      });
-    }
+    // const currentTimestamp = new Date().getTime();
+    // if (currentTimestamp > hashedToken.expiration_timestamp) {
+    //   await authModel.deleteToken(user.id);
+    //   return res.status(400).json({
+    //     success: false,
+    //     error: "token expired, request for another one",
+    //   });
+    // }
 
     // Hash the new password and update the user
     const hashedPassword = await passwordUtil.hashPassword(password);
@@ -284,15 +285,17 @@ const resetPassword = async (req, res) => {
     // Delete the used token
     await authModel.deleteToken(user.id);
 
-    await emailUtil.sendEmail(email, "Password Reset Successfully", {
-      firstName: user.first_name,
-      lastName: user.last_name,
-      template: "./templates/passwordResetSuccess.handlebars",
-    });
+    await emailUtil.sendEmail(
+      email,
+      "Password Reset Successfully",
+      {
+        firstName: user.first_name,
+        lastName: user.last_name,
+      },
+      "./templates/passwordResetSuccess.handlebars"
+    );
 
-    res
-      .status(201)
-      .json({ success: true, message: "Password reset successful" });
+    res.status(201).json({ success: true, message: "Password reset successful" });
   } catch (error) {
     logger.error(error);
 
@@ -303,9 +306,9 @@ const resetPassword = async (req, res) => {
   }
 };
 
-const logout = async (req, res) => {
+const logout = async (_req: Request, res: Response) => {
   try {
-    await req.session.destroy();
+    // TODO
     res.status(204).end();
   } catch (error) {
     logger.error(error);
@@ -317,7 +320,7 @@ const logout = async (req, res) => {
   }
 };
 
-const refreshToken = async (req, res) => {
+const refreshToken = async (_req: Request, res: Response) => {
   try {
     // TODO
     // Add logic to refresh the token, involve validating the existing token, generating a new one, and updating the user's session

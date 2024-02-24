@@ -5,16 +5,9 @@ import cookieParser from "cookie-parser";
 import morgan from "morgan";
 import compression from "compression";
 import responseTime from "response-time";
-import ConnectPg from "connect-pg-simple";
-import { fileURLToPath } from "url";
-import { dirname } from "path";
 
-import routes from "./routes/index.route.js";
-import httpMethodHandler from "./middleware/httpMethodHandler.js";
-import pool from "../db/connection.js";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+import routes from "./routes/index.route";
+import httpMethodHandler from "./middleware/httpMethodHandler";
 
 const app = express();
 

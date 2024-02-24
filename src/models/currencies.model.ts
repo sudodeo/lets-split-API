@@ -1,4 +1,4 @@
-import pool from "../../db/connection.js";
+import pool from "../../db/connection";
 
 const getCurrencies = async () => {
   const client = await pool.connect();
@@ -12,7 +12,7 @@ const getCurrencies = async () => {
   }
 };
 
-const getCurrency = async (currencyCode) => {
+const getCurrency = async (currencyCode: string) => {
   const client = await pool.connect();
   try {
     const currency = await client.query(

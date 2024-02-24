@@ -1,7 +1,8 @@
-import logger from "../config/loggerConfig.js";
-import currenciesModel from "../models/currencies.model.js";
+import logger from "../config/loggerConfig";
+import currenciesModel from "../models/currencies.model";
+import { Request, Response } from "express";
 
-const getCurrencies = async (_req, res) => {
+const getCurrencies = async (_req: Request, res:Response) => {
   try {
     const currencies = await currenciesModel.getCurrencies();
     res.status(200).json({ success: true, currencies });
