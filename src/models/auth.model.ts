@@ -5,14 +5,14 @@ const storeToken = async (
   user_id: string,
   token: string,
   expiration_timestamp: number,
-  token_type: string
+  token_type: string,
 ) => {
   const client = await pool.connect();
   try {
     console.log(typeof expiration_timestamp);
     const storedToken = await client.query(
       "INSERT INTO tokens(user_id,token_hash, expiration_timestamp, token_type) VALUES ($1,$2,(to_timestamp($3 / 1000.0)), $4) RETURNING *;",
-      [user_id, token, expiration_timestamp, token_type]
+      [user_id, token, expiration_timestamp, token_type],
     );
 
     return storedToken.rows[0];
@@ -29,7 +29,7 @@ const retrieveToken = async (user_id: string) => {
   try {
     const foundToken = await client.query(
       "SELECT * FROM tokens WHERE user_id=$1",
-      [user_id]
+      [user_id],
     );
     return foundToken.rows[0];
   } catch (error) {

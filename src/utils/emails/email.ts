@@ -31,11 +31,12 @@ export const sendEmail = async (
     subject,
     html: compiledTemplate(payload),
   };
-  await transporter.sendMail(mailOptions, (error, _) => {
+  await transporter.sendMail(mailOptions, (error, _): string => {
     if (error) {
       logger.error(error);
       return "failed";
     }
+    return "sent";
   });
   return "sent";
 };

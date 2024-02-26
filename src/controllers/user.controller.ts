@@ -30,10 +30,11 @@ const getUser = async (req: Request, res: Response) => {
   }
 };
 
-const updateUser = async (req: Request, res: Response) => {
+const updateUser = async (req: Request, res: Response): Promise<void> => {
   try {
     const user = userModel.updateUser(req.body);
-    return res.status(200).json({ success: true, user });
+    res.status(200).json({ success: true, user });
+    return;
   } catch (error) {
     logger.error(error);
 
