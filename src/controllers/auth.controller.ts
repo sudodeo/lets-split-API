@@ -307,7 +307,9 @@ const resetPassword = async (req: Request, res: Response): Promise<void> => {
       "./templates/passwordResetSuccess.handlebars",
     );
 
-    res.status(201).json({ success: true, message: "Password reset successful" });
+    res
+      .status(201)
+      .json({ success: true, message: "Password reset successful" });
   } catch (error) {
     logger.error(error);
 
