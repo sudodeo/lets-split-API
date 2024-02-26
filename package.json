@@ -33,9 +33,6 @@
     "passport-local": "^1.0.0",
     "pg": "^8.11.3",
     "response-time": "^2.3.2",
-    "swagger-autogen": "^2.23.7",
-    "swagger-jsdoc": "^6.2.8",
-    "swagger-ui-express": "^5.0.0",
     "winston": "^3.11.0"
   },
   "devDependencies": {
