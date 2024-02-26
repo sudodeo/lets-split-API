@@ -202,7 +202,7 @@ authRouter.post(
     .custom((value, { req }) => value === req.body.password)
     .withMessage("passwords do not match"),
   validateMiddleware.validateInput,
-  authController.register
+  authController.register,
 );
 
 /**
@@ -228,14 +228,14 @@ authRouter.post(
   check("email").exists().notEmpty().isEmail().normalizeEmail(),
   check("password").exists().notEmpty(),
   validateMiddleware.validateInput,
-  authController.login
+  authController.login,
 );
 
 authRouter.post(
   "/verify/:token",
   check("email").exists().notEmpty().isEmail().normalizeEmail(),
   validateMiddleware.validateInput,
-  authController.verifyEmail
+  authController.verifyEmail,
 );
 
 /**
@@ -259,7 +259,7 @@ authRouter.post(
 authRouter.post(
   "/logout",
   authMiddleware.authenticateToken,
-  authController.logout
+  authController.logout,
 );
 
 /**
@@ -287,7 +287,7 @@ authRouter.post(
 authRouter.post(
   "/refresh",
   authMiddleware.authenticateToken,
-  authController.refreshToken
+  authController.refreshToken,
 );
 
 /**
@@ -311,7 +311,7 @@ authRouter.post(
 authRouter.post(
   "/forgot-password",
   check("email").exists().notEmpty().isEmail().normalizeEmail(),
-  authController.forgotPassword
+  authController.forgotPassword,
 );
 
 /**
@@ -345,7 +345,7 @@ authRouter.post(
   check("confirmPassword")
     .exists()
     .custom((value, { req }) => value === req.body.password),
-  authController.resetPassword
+  authController.resetPassword,
 );
 
 export default authRouter;

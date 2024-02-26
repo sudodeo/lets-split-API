@@ -6,15 +6,15 @@ import morgan from "morgan";
 import compression from "compression";
 import responseTime from "response-time";
 
-import routes from "./routes/index.route";
-import httpMethodHandler from "./middleware/httpMethodHandler";
+import indexRoute from "./routes/index.route.js";
+import httpMethodHandler from "./middleware/httpMethodHandler.js";
 
 const app = express();
 
+app.use(helmet());
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors());
-app.use(helmet());
 app.use(compression());
 app.use(responseTime());
 
@@ -27,10 +27,7 @@ if (process.env.NODE_ENV === "dev") {
 
 app.use(httpMethodHandler);
 
-app.use("/api/v1/auth", routes.authRoutes);
-app.use("/api/v1/expenses", routes.expenseRoutes);
-app.use("/api/v1/health", routes.healthRoute);
-app.use("/api/v1/currencies", routes.currenciesRoute);
+app.use("/api/v1", indexRoute);
 
 app.get("/", (_, res) => {
   res.redirect("/api/docs");

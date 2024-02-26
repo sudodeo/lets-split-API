@@ -15,6 +15,4 @@ if (NODE_ENV == "dev") {
   connectionString = DB_CONN_STRING;
 }
 
-export {
-  connectionString
-};
+export { connectionString };

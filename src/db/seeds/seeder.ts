@@ -1,4 +1,4 @@
-import { populateCurrencyTable } from "./currenciesSeeder.js";
+import { populateCurrencyTable } from "./currenciesSeeder";
 // import pool from "../connection.js";
 
 const seedDatabase = async () => {

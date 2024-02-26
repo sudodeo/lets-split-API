@@ -1,10 +1,10 @@
 import pg from "pg";
 
-import * as dbConfig from "../src/config/dbConfig.js";
-import logger from "../src/config/loggerConfig.js";
+import * as dbConfig from "../config/dbConfig.js";
+import logger from "../config/loggerConfig.js";
 
 const pool = new pg.Pool(dbConfig);
-pool.on("error", (error) => {
+pool.on("error", (error: any) => {
   logger.error(`PostgreSQL connection pool error: ${error}`);
   pool.end();
 });

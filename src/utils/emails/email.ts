@@ -21,7 +21,7 @@ export const sendEmail = async (
   email: string,
   subject: string,
   payload: Object,
-  template: string
+  template: string,
 ) => {
   const source = fs.readFileSync(path.join(__dirname, template), "utf8");
   const compiledTemplate = Handlebars.compile(source);

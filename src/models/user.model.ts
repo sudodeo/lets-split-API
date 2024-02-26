@@ -1,6 +1,6 @@
-import pool from "../../db/connection.js";
-import logger from "../config/loggerConfig.js";
-import { UpdateUser, User } from "../types/user.types.js";
+import pool from "../db/connection";
+import logger from "../config/loggerConfig";
+import { UpdateUser, User } from "../types/user.types";
 
 const getAllUsers = async () => {
   const client = await pool.connect();
@@ -9,7 +9,7 @@ const getAllUsers = async () => {
     return result.rows;
   } catch (error) {
     logger.error(`getAllUsers db error: ${error}`);
-    return { users: [], error };
+    return [];
   } finally {
     client.release();
   }

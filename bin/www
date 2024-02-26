@@ -1,0 +1,25 @@
+#!/usr/bin/env node
+
+/**
+ * Module dependencies.
+ */
+
+var app = require("../dist/app").default;
+const seedDatabase = require("../dist/db/seeds/seeder.js").default;
+const logger = require("../dist/config/loggerConfig").default;
+var http = require("http");
+
+const { PORT } = require("../dist/config/index");
+
+app.set("port", PORT);
+
+/**
+ * Create HTTP server.
+ */
+
+var server = http.createServer(app);
+
+server.listen(PORT, async () => {
+  await seedDatabase();
+  logger.debug(`Server running on port ${PORT}`);
+});
