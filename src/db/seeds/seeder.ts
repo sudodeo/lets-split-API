@@ -5,4 +5,4 @@ const seedDatabase = async () => {
   await populateCurrencyTable();
 };
 
-export default seedDatabase
+export default seedDatabase;
