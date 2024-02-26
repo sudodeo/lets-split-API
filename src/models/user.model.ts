@@ -42,7 +42,7 @@ const createUser = async (user: User): Promise<User> => {
         user.password,
         user.address,
         user.dob,
-      ]
+      ],
     );
 
     return result.rows[0];

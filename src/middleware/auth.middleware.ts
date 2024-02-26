@@ -6,11 +6,12 @@ const authenticateToken = async (
   req: Request,
   res: Response,
   next: NextFunction,
-) => {
+): Promise<void> => {
   try {
     const token = req.headers.authorization;
     if (!token) {
-      return res.status(401).json({ success: false, error: "Access denied" });
+      res.status(401).json({ success: false, error: "Access denied" });
+      return;
     }
     // const decoded = authService.verifyJwt(token);
     // if (decoded.iss !== "authService") {

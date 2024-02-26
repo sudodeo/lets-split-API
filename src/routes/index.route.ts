@@ -23,5 +23,4 @@ router.use((_, res) => {
   });
 });
 
-
 export default router;

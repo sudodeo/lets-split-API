@@ -17,7 +17,7 @@ const getCurrency = async (currencyCode: string) => {
   try {
     const currency = await client.query(
       "SELECT * FROM currencies WHERE currency_code=$1;",
-      [currencyCode]
+      [currencyCode],
     );
     return currency.rows[0];
   } catch (error) {
