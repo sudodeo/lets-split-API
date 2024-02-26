@@ -6,7 +6,7 @@
   "scripts": {
     "prestart": "npm run build",
     "start": "node ./bin/www",
-    "dev": "nodemon --watch ./src/ ./bin/www",
+    "dev": " nodemon --watch ./src/ --exec \"npm run start\" ",
     "build": "rm -rf dist && tsc",
     "clean": "rm -rf dist",
     "format": "npx prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
