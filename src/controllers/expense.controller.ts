@@ -3,7 +3,7 @@ import expenseModel from "../models/expense.model";
 import currencyModel from "../models/currencies.model";
 import { Request, Response } from "express";
 
-const getAllExpenses = async (req: Request, res:Response) => {
+const getAllExpenses = async (req: Request, res: Response) => {
   const { created } = req.query;
 
   const authUser = req.user;
@@ -13,7 +13,7 @@ const getAllExpenses = async (req: Request, res:Response) => {
   }
 
   const user_id = authUser.id;
-  let expenses = "";
+  let expenses = [];
   try {
     if (created && created === "true") {
       expenses = await expenseModel.getCreatedExpenses(user_id);
@@ -29,7 +29,7 @@ const getAllExpenses = async (req: Request, res:Response) => {
   }
 };
 
-const getExpense = async (req: Request, res:Response) => {
+const getExpense = async (req: Request, res: Response) => {
   try {
     const { expenseID } = req.params;
     const expense = await expenseModel.getExpense(expenseID);
@@ -47,7 +47,7 @@ const getExpense = async (req: Request, res:Response) => {
   }
 };
 
-const createExpense = async (req: Request, res:Response) => {
+const createExpense = async (req: Request, res: Response) => {
   try {
     // Check if the currency is supported
     const currency = await currencyModel.getCurrency(req.body.currency_code);
@@ -74,8 +74,8 @@ const createExpense = async (req: Request, res:Response) => {
   }
 };
 
-const getExpenseSummary = async (_req: Request, _res:Response) => {};
-const settleExpense = async (_req: Request, _res:Response) => {};
+const getExpenseSummary = async (_req: Request, _res: Response) => {};
+const settleExpense = async (_req: Request, _res: Response) => {};
 
 export default {
   getAllExpenses,

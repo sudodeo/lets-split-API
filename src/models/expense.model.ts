@@ -1,4 +1,4 @@
-import pool from "../../db/connection";
+import pool from "../db/connection";
 import { Expense, ExpenseParticipant } from "../types/expense.types";
 
 // TODO: add queries for filtering search results
@@ -72,8 +72,7 @@ const createExpense = async (data: Expense) => {
     //     comments: participant.comments,
     //   },
     // ]);
-    const expense_participants = data.participants.map(t);
-    function t(participant: ExpenseParticipant) {
+    const expense_participants = data.participants.map((participant: ExpenseParticipant) =>{
       return {
         expense_id: `'${expenseID}'`,
         user_id: `'${participant.user_id}'`,
@@ -82,7 +81,8 @@ const createExpense = async (data: Expense) => {
         currency_code_id: data.currency_code_id,
         comments: `'${participant.comments}'`,
       };
-    }
+    });
+    
 
     // const values = v.map((k) => {
     //   participantKeys;

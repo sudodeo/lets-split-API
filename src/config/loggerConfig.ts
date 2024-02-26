@@ -3,7 +3,6 @@ import path from "path";
 
 import { NODE_ENV } from "./index";
 
-
 const logDirectory = path.join(__dirname, "../../logs");
 
 const customColors = {
@@ -41,8 +40,8 @@ const logger = winston.createLogger({
     winston.format.align(),
     winston.format.colorize({ level: true, colors: customColors }),
     winston.format.printf(
-      (info) => `[${info.timestamp}] ${info.level}: ${info.message}`
-    )
+      (info) => `[${info.timestamp}] ${info.level}: ${info.message}`,
+    ),
   ),
   transports: [
     new winston.transports.Console({
@@ -57,7 +56,7 @@ const logger = winston.createLogger({
       maxFiles: 15,
       format: winston.format.combine(
         winston.format.colorize({ level: true, colors: customColors }),
-        winston.format.simple()
+        winston.format.simple(),
       ),
     }),
     new winston.transports.File({
@@ -67,7 +66,7 @@ const logger = winston.createLogger({
       maxFiles: 15,
       format: winston.format.combine(
         winston.format.colorize({ level: true, colors: customColors }),
-        winston.format.simple()
+        winston.format.simple(),
       ),
     }),
   ],

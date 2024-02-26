@@ -40,7 +40,11 @@ const getAllowedMethodsForEndpoint = (path: string) => {
   }
 };
 
-const httpMethodHandler = async (req: Request, res:Response, next:NextFunction) => {
+const httpMethodHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   const allowedMethods = getAllowedMethodsForEndpoint(req.path);
   if (allowedMethods.length === 0) {
     //endpoint does not exist

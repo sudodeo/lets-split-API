@@ -33,7 +33,7 @@ const register = async (req: Request, res: Response) => {
 
     const verifyToken = await authService.sendVerificationMail(
       user.first_name,
-      user.email
+      user.email,
     );
 
     if (verifyToken === "") {
@@ -48,10 +48,10 @@ const register = async (req: Request, res: Response) => {
       user.id,
       verifyToken,
       expiration_timestamp,
-      "email"
+      "email",
     );
 
-    res.status(201).json({ success: true, user:userJSON });
+    res.status(201).json({ success: true, user: userJSON });
   } catch (error) {
     logger.error(`createUser error: ${error}`);
 
@@ -86,7 +86,7 @@ const verifyEmail = async (req: Request, res: Response) => {
     if (currentTimestamp > existingToken.expiration_timestamp) {
       const verifyToken = await authService.sendVerificationMail(
         user.first_name,
-        user.email
+        user.email,
       );
       if (verifyToken === "") {
         return res.status(500).json({
@@ -100,7 +100,7 @@ const verifyEmail = async (req: Request, res: Response) => {
         user.id,
         verifyToken,
         expiration_timestamp,
-        "email"
+        "email",
       );
 
       return res.status(400).json({
@@ -129,7 +129,7 @@ const login = async (req: Request, res: Response) => {
 
     const passwordMatch = await passwordUtil.isValidPassword(
       password,
-      user.password
+      user.password,
     );
     if (!passwordMatch) {
       return res
@@ -155,7 +155,7 @@ const login = async (req: Request, res: Response) => {
       ) {
         const verifyToken = await authService.sendVerificationMail(
           user.first_name,
-          user.email
+          user.email,
         );
         if (verifyToken === "") {
           return res.status(500).json({
@@ -169,7 +169,7 @@ const login = async (req: Request, res: Response) => {
           user.id,
           verifyToken,
           expiration_timestamp,
-          "email"
+          "email",
         );
       }
 
@@ -222,7 +222,7 @@ const forgotPassword = async (req: Request, res: Response) => {
       user.id,
       resetToken,
       expiration_timestamp,
-      "password"
+      "password",
     );
 
     const link = `${CLIENT_URL}/api/auth/reset-password/${resetToken}`;
@@ -231,7 +231,7 @@ const forgotPassword = async (req: Request, res: Response) => {
       email,
       "Password Reset Request",
       { firstName: user.first_name, lastName: user.last_name, link },
-      "./templates/passwordReset.handlebars"
+      "./templates/passwordReset.handlebars",
     );
 
     if (emailStatus !== "sent") {
@@ -292,10 +292,12 @@ const resetPassword = async (req: Request, res: Response) => {
         firstName: user.first_name,
         lastName: user.last_name,
       },
-      "./templates/passwordResetSuccess.handlebars"
+      "./templates/passwordResetSuccess.handlebars",
     );
 
-    res.status(201).json({ success: true, message: "Password reset successful" });
+    res
+      .status(201)
+      .json({ success: true, message: "Password reset successful" });
   } catch (error) {
     logger.error(error);
 

@@ -7,7 +7,7 @@ const hashPassword = async (unhashedPassword: string) => {
 
 const isValidPassword = async (
   plainPassword: string,
-  hashedPassword: string
+  hashedPassword: string,
 ) => {
   return await bcrypt.compare(plainPassword, hashedPassword);
 };

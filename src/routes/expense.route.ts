@@ -8,31 +8,31 @@ const expenseRouter = Router();
 expenseRouter.get(
   "/",
   authMiddleware.authenticateToken,
-  expenseController.getAllExpenses
+  expenseController.getAllExpenses,
 );
 
 expenseRouter.get(
   "/:expenseID",
   authMiddleware.authenticateToken,
-  expenseController.getExpense
+  expenseController.getExpense,
 );
 
 expenseRouter.get(
   "/expense-summary",
   authMiddleware.authenticateToken,
-  expenseController.getExpenseSummary
+  expenseController.getExpenseSummary,
 );
 
 expenseRouter.post(
   "/",
   authMiddleware.authenticateToken,
-  expenseController.createExpense
+  expenseController.createExpense,
 );
 
 expenseRouter.post(
   "/settle-expense",
   authMiddleware.authenticateToken,
-  expenseController.settleExpense
+  expenseController.settleExpense,
 );
 
 export default expenseRouter;

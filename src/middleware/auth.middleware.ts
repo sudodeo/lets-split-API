@@ -2,7 +2,11 @@ import logger from "../config/loggerConfig";
 // import authService from "../services/auth.service";
 import { NextFunction, Request, Response } from "express";
 
-const authenticateToken = async (req: Request, res:Response, next:NextFunction) => {
+const authenticateToken = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const token = req.headers.authorization;
     if (!token) {

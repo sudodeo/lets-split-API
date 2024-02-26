@@ -1,4 +1,4 @@
-import pool from "../../db/connection";
+import pool from "../db/connection";
 import logger from "../config/loggerConfig";
 
 const storeToken = async (
@@ -40,7 +40,7 @@ const retrieveToken = async (user_id: string) => {
   }
 };
 
-const deleteToken = async (user_id:string) => {
+const deleteToken = async (user_id: string) => {
   const client = await pool.connect();
   try {
     await client.query("DELETE FROM tokens WHERE user_id=$1;", [user_id]);
