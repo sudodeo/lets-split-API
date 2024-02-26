@@ -20,5 +20,6 @@
     "skipLibCheck": true /* Skip type checking of declaration files. */,
     "forceConsistentCasingInFileNames": true /* Disallow inconsistently-cased references to the same file. */,
     "noEmitOnError": true /* Do not emit outputs if any type checking errors are reported. */
-  }
+  },
+  "include": ["src/**/*"] /* Specify files to include here. */,
 }
