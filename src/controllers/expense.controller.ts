@@ -3,13 +3,14 @@ import expenseModel from "../models/expense.model";
 import currencyModel from "../models/currencies.model";
 import { Request, Response } from "express";
 
-const getAllExpenses = async (req: Request, res: Response) => {
+const getAllExpenses = async (req: Request, res: Response): Promise<void> => {
   const { created } = req.query;
 
   const authUser = req.user;
 
   if (authUser == null) {
-    return res.status(401).json({ success: false, error: "unauthorised" });
+    res.status(401).json({ success: false, error: "unauthorised" });
+    return;
   }
 
   const user_id = authUser.id;
@@ -29,14 +30,13 @@ const getAllExpenses = async (req: Request, res: Response) => {
   }
 };
 
-const getExpense = async (req: Request, res: Response) => {
+const getExpense = async (req: Request, res: Response): Promise<void> => {
   try {
     const { expenseID } = req.params;
     const expense = await expenseModel.getExpense(expenseID);
     if (!expense) {
-      return res
-        .status(404)
-        .json({ success: false, error: "expense not found" });
+      res.status(404).json({ success: false, error: "expense not found" });
+      return;
     }
 
     res.status(200).json({ success: true, expense });
