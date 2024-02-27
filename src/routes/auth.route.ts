@@ -30,10 +30,6 @@ authRouter.post(
     .exists()
     .isStrongPassword()
     .withMessage("password not strong enough"),
-  check("confirmPassword")
-    .exists()
-    .custom((value, { req }) => value === req.body.password)
-    .withMessage("passwords do not match"),
   validateMiddleware.validateInput,
   authController.register,
 );
