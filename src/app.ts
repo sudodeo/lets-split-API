@@ -33,12 +33,4 @@ app.get("/", (_, res) => {
   res.redirect("/api/docs");
 });
 
-// Error handler for routes that fall through
-app.use((_, res) => {
-  res.status(404).json({
-    success: false,
-    error: "The requested resource was not found on this server",
-  });
-});
-
 export default app;
