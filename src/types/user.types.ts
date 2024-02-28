@@ -3,7 +3,7 @@ export interface User {
   firstName: string;
   lastName: string;
   email: string;
-  dob: string;
+  dob: Date;
   address: string;
   password: string;
   is_verified: boolean;
