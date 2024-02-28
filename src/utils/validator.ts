@@ -6,6 +6,14 @@ export const validateRegistration = async (
 ): Promise<ValidationError[]> => {
   const errors: ValidationError[] = [];
 
+  if (payload == null || JSON.stringify(payload) === "{}") {
+    errors.push({
+      field: "payload",
+      error: "payload is required",
+    });
+    return errors;
+  }
+  
   const { email, firstName, lastName, dob, password } = payload;
 
   const emailErrors = validateEmail(email);
