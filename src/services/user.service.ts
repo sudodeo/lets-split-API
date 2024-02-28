@@ -1,8 +1,7 @@
-// userService.js
-import userModel from "../models/user.model.js";
-import { User } from "../types/user.types.js";
+import userModel from "../models/user.model";
+import { UpdateUser } from "../types/user.types";
 
-const updateUserProfile = async (newProfileData: User) => {
+const updateUserProfile = async (newProfileData: UpdateUser) => {
   return userModel.updateUser(newProfileData);
 };
 
