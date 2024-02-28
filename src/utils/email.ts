@@ -3,8 +3,8 @@ import nodemailer from "nodemailer";
 import Handlebars from "handlebars";
 import path from "path";
 
-import { GMAIL_USERNAME, GMAIL_APP_PASSWORD } from "../../config/index";
-import logger from "../../config/loggerConfig";
+import { GMAIL_USERNAME, GMAIL_APP_PASSWORD } from "../config/index";
+import logger from "../config/loggerConfig";
 
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
@@ -21,7 +21,7 @@ export const sendEmail = async (
   email: string,
   subject: string,
   payload: Object,
-  template: string,
+  template: string
 ) => {
   const source = fs.readFileSync(path.join(__dirname, template), "utf8");
   const compiledTemplate = Handlebars.compile(source);
