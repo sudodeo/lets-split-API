@@ -1,5 +1,3 @@
-// import { Request } from 'express';
-
 export interface User {
   id: string;
   firstName: string;
