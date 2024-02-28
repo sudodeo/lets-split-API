@@ -25,6 +25,6 @@ export interface UpdateUser {
 
 declare module "express" {
   interface Request {
-    user?: User; // Assuming User is your user object type
+    user?: User;
   }
 }
