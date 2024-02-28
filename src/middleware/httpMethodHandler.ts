@@ -1,7 +1,7 @@
-import { NextFunction, Request, Response } from "express";
+// import { NextFunction, Request, Response } from "express";
 
 // Function to determine allowed methods for an endpoint
-const getAllowedMethodsForEndpoint = (path: string) => {
+export const getAllowedMethodsForEndpoint = (path: string) => {
   switch (path) {
     case "/":
       return ["GET"];
@@ -40,26 +40,26 @@ const getAllowedMethodsForEndpoint = (path: string) => {
   }
 };
 
-const httpMethodHandler = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  const allowedMethods = getAllowedMethodsForEndpoint(req.path);
-  if (allowedMethods.length === 0) {
-    //endpoint does not exist
-    return next();
-  }
+// const httpMethodHandler = async (
+//   req: Request,
+//   res: Response,
+//   next: NextFunction,
+// ) => {
+//   const allowedMethods = getAllowedMethodsForEndpoint(req.path);
+//   if (allowedMethods.length === 0) {
+//     // endpoint does not exist
+//     return next();
+//   }
 
-  if (!allowedMethods.includes(req.method)) {
-    return res.status(405).json({
-      success: false,
-      error: "Method Not Allowed",
-      message: `The requested method ${req.method} is not allowed for this endpoint.`,
-      allowedMethods,
-    });
-  }
-  next();
-};
+//   if (!allowedMethods.includes(req.method)) {
+//     return res.status(405).json({
+//       success: false,
+//       error: "Method Not Allowed",
+//       message: `The requested method ${req.method} is not allowed for this endpoint.`,
+//       allowedMethods,
+//     });
+//   }
+//   next();
+// };
 
-export default httpMethodHandler;
+// export default httpMethodHandler;
