@@ -5,7 +5,7 @@ import logger from "../config/loggerConfig";
 import { JWT_SECRET, CLIENT_URL } from "../config/index";
 import passwordUtil from "../utils/password.util";
 import userModel from "../models/user.model";
-import emailUtil from "../utils/emails/email";
+import emailUtil from "../utils/email";
 import { User } from "../types/user.types";
 
 const registerUser = async (userData: User) => {
@@ -23,7 +23,7 @@ const sendVerificationMail = async (firstName: string, email: string) => {
     email,
     "Verify Email",
     { firstName, link },
-    "./templates/verifyMail.handlebars",
+    "../../templates/verifyMail.handlebars"
   );
 
   if (emailStatus !== "sent") {
@@ -42,7 +42,7 @@ const generateJwt = (id: string) => {
       aud: "SplitCrew",
     },
     JWT_SECRET as string,
-    { expiresIn: maxAge },
+    { expiresIn: maxAge }
   );
 };
 
