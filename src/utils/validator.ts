@@ -13,7 +13,7 @@ export const validateRegistration = async (
     });
     return errors;
   }
-  
+
   const { email, firstName, lastName, dob, password } = payload;
 
   const emailErrors = validateEmail(email);
@@ -53,6 +53,7 @@ export const validateRegistration = async (
       field: "password",
       error: "password is required",
     });
+    return errors;
   }
 
   const passwordErrors = validatePassword(password);
@@ -73,7 +74,7 @@ export function validateEmail(email: string): ValidationError[] {
     return errors;
   }
 
-  const emailRegex = /S+@S+.S+/;
+  const emailRegex = /\S+@\S+\.[a-zA-Z]+$/;
   if (!emailRegex.test(email)) {
     errors.push({
       field: "email",
@@ -88,7 +89,8 @@ export function validateDob(dob: Date): ValidationError[] {
   const errors: ValidationError[] = [];
 
   const currentYear = new Date().getFullYear();
-  const dobYear = dob.getFullYear();
+  const dateOfBirth = new Date(dob);
+  const dobYear = dateOfBirth.getFullYear();
   if (currentYear - dobYear < 18) {
     errors.push({
       field: "dob",
@@ -97,7 +99,7 @@ export function validateDob(dob: Date): ValidationError[] {
   }
 
   // invalid date
-  if (isNaN(dob.getTime())) {
+  if (isNaN(dateOfBirth.getTime())) {
     errors.push({
       field: "dob",
       error: "invalid date of birth",
