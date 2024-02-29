@@ -115,7 +115,6 @@ const createExpense = async (data: Expense) => {
       currency_code_id: data.currency_code_id,
       participants: participants.rows,
     };
-    console.log(participants);
     return expenseSummary;
   } catch (error) {
     await client.query("ROLLBACK;");

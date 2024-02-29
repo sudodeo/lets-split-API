@@ -60,7 +60,6 @@ const createExpense = async (req: Request, res: Response) => {
     req.body.currency_code_id = currency.id;
 
     const expense = await expenseModel.createExpense(req.body);
-    console.log(expense);
     if (!expense) {
       throw new Error("expense not created");
     }
