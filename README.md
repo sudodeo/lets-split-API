@@ -53,13 +53,13 @@ Explore the API endpoints and test requests using the Postman documentation by a
 
 **Endpoints**
 
-POST `/api/auth/register`: Register a new user account.\
-POST `/api/auth/login`: Authenticate user login.\
-POST `/api/expenses`: Create a new expense entry.\
-GET `/api/expenses`: Retrieve all expenses.\
-GET `/api/expenses/expense-summary`: Retrieve expense summaries and participant breakdown.\
-POST `/api/expenses/settle-expense`: Mark an expense as settled.\
-GET `/api/currencies`: Retrieve supported currencies.
+POST `/api/v1/auth/register`: Register a new user account.\
+POST `/api/v1/auth/login`: Authenticate user login.\
+POST `/api/v1/expenses`: Create a new expense entry.\
+GET `/api/v1/expenses`: Retrieve all expenses.\
+GET `/api/v1/expenses/expense-summary`: Retrieve expense summaries and participant breakdown.\
+POST `/api/v1/expenses/settle-expense`: Mark an expense as settled.\
+GET `/api/v1/currencies`: Retrieve supported currencies.
 ... and more.
 
 For detailed API documentation, visit Postman API Documentation.
