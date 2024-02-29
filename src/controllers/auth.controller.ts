@@ -1,77 +1,80 @@
-import { validationResult } from "express-validator";
-
 import logger from "../config/loggerConfig";
 import passwordUtil from "../utils/password.util";
-import emailUtil from "../utils/emails/email";
+import emailUtil from "../utils/email";
 import userModel from "../models/user.model";
 import authModel from "../models/auth.model";
 import authService from "../services/auth.service";
 import { CLIENT_URL } from "../config/index";
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
+import { validateEmail, validateRegistration } from "../utils/validator";
+import {
+  BadRequest,
+  Conflict,
+  InvalidInput,
+  NotFound,
+  ServerError,
+  Unauthorized,
+} from "../middleware/error.middleware";
 
-const register = async (req: Request, res: Response): Promise<void> => {
+const register = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      res.status(400).json({ success: false, error: errors.array() });
-      return;
+    const errors = await validateRegistration(req.body);
+    if (errors.length > 0) {
+      throw new InvalidInput("Invalid input", errors);
     }
 
-    const { email } = req.body;
+    const { email, firstName } = req.body;
     const existingUser = await userModel.getUser(email);
     if (existingUser) {
-      res.status(409).json({ success: false, error: "User already exists" });
-      return;
+      throw new Conflict("User already exists");
     }
 
-    const user = await authService.registerUser(req.body);
-
-    // Convert to local time zone and format the date as YYYY-MM-DD, because for some reason, node-postgres converts the date to UTC when it reads  from the database
-    user.dob = new Date(user.dob).toLocaleDateString("en-CA");
-    // don't send hashed password to client
-    const userJSON = { ...user, password: undefined };
-
     const verifyToken = await authService.sendVerificationMail(
-      user.first_name,
-      user.email,
+      firstName,
+      email
     );
 
     if (verifyToken === "") {
-      res.status(500).json({
-        success: false,
-        error: "internal server error",
-      });
-      return;
+      throw new ServerError("internal server error, could not send token");
     }
 
     const expiration_timestamp = new Date().getTime() + 24 * 60 * 60 * 1000; // 1 hour (converted to milliseconds)
+
+    const user = await authService.registerUser(req.body);
+
+    // don't send hashed password to client
+    const userJSON = { ...user, password: undefined };
+
     await authModel.storeToken(
       user.id,
       verifyToken,
       expiration_timestamp,
-      "email",
+      "email"
     );
 
     res.status(201).json({ success: true, user: userJSON });
   } catch (error) {
     logger.error(`createUser error: ${error}`);
-
-    res.status(500).json({
-      success: false,
-      error: "internal server error",
-    });
+    next(error);
   }
 };
 
-const verifyEmail = async (req: Request, res: Response): Promise<void> => {
+const verifyEmail = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   try {
     const { token } = req.params;
     const { email } = req.body;
 
     const user = await userModel.getUser(email);
     if (!user) {
-      res.status(404).json({ success: false, error: "user not found" });
-      return;
+      throw new NotFound("User not found");
     }
 
     const existingToken = await authModel.retrieveToken(user.id);
@@ -81,22 +84,17 @@ const verifyEmail = async (req: Request, res: Response): Promise<void> => {
     console.log(existingToken.token_hash);
     console.log(token);
     if (existingToken && existingToken.token_hash !== token) {
-      res.status(409).json({ success: false, error: "Invalid token" });
-      return;
+      throw new BadRequest("Invalid token");
     }
 
     // Check if the token has expired
     if (currentTimestamp > existingToken.expiration_timestamp) {
       const verifyToken = await authService.sendVerificationMail(
         user.first_name,
-        user.email,
+        user.email
       );
       if (verifyToken === "") {
-        res.status(500).json({
-          success: false,
-          error: "internal server error, could not send token",
-        });
-        return;
+        throw new ServerError("internal server error, could not send token");
       }
 
       const expiration_timestamp = new Date().getTime() + 24 * 60 * 60 * 1000; // 1 hour (converted to milliseconds)
@@ -104,14 +102,10 @@ const verifyEmail = async (req: Request, res: Response): Promise<void> => {
         user.id,
         verifyToken,
         expiration_timestamp,
-        "email",
+        "email"
       );
 
-      res.status(400).json({
-        success: false,
-        error: "token expired, sending new link",
-      });
-      return;
+      throw new BadRequest("token expired, request for another one");
     }
 
     await userModel.updateUser({ email: user.email, is_verified: true });
@@ -119,39 +113,33 @@ const verifyEmail = async (req: Request, res: Response): Promise<void> => {
     res.status(200).json({ success: true, message: "email verified" });
   } catch (error) {
     logger.error(error);
-
-    res.status(500).json({ success: false, error: "internal server error" });
+    next(error);
   }
 };
 
-const login = async (req: Request, res: Response): Promise<void> => {
+const login = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   try {
     const { email, password } = req.body;
     const user = await userModel.getUser(email);
     if (!user) {
-      res.status(404).json({ success: false, error: "User not found" });
-      return;
+      throw new NotFound("User not found");
     }
 
     const passwordMatch = await passwordUtil.isValidPassword(
       password,
-      user.password,
+      user.password
     );
     if (!passwordMatch) {
-      res.status(401).json({ success: false, error: "Invalid credentials" });
-      return;
+      throw new Unauthorized("Invalid credentials");
     }
 
     if (!user.is_verified) {
       const existingToken = await authModel.retrieveToken(user.id);
       const currentTimestamp = new Date().getTime();
-
-      // // Check if the provided token is invalid
-      // console.log(existingToken.token_hash)
-      // console.log(token)
-      // if (existingToken && existingToken.token_hash !== token) {
-      //   return res.status(409).json({ success: false, error: "Invalid token" });
-      // }
 
       // Check if the token has expired
       if (
@@ -160,14 +148,10 @@ const login = async (req: Request, res: Response): Promise<void> => {
       ) {
         const verifyToken = await authService.sendVerificationMail(
           user.first_name,
-          user.email,
+          user.email
         );
         if (verifyToken === "") {
-          res.status(500).json({
-            success: false,
-            error: "internal server error, could not send token",
-          });
-          return;
+          throw new ServerError("internal server error, could not send token");
         }
 
         const expiration_timestamp = new Date().getTime() + 24 * 60 * 60 * 1000; // 1 hour (converted to milliseconds)
@@ -175,16 +159,13 @@ const login = async (req: Request, res: Response): Promise<void> => {
           user.id,
           verifyToken,
           expiration_timestamp,
-          "email",
+          "email"
         );
       }
 
-      res.status(401).json({
-        success: false,
-        error:
-          "please verify your email address. A verification link has been sent to your email",
-      });
-      return;
+      throw new Unauthorized(
+        "please verify your email address. A verification link has been sent to your email"
+      );
     }
 
     const token = await authService.generateJwt(user.id);
@@ -195,18 +176,25 @@ const login = async (req: Request, res: Response): Promise<void> => {
     res.status(201).json({ success: true, token });
   } catch (error) {
     logger.error(`login error: ${error}`);
-
-    res.status(500).json({ success: false, error: "internal server error" });
+    next(error);
   }
 };
 
-const forgotPassword = async (req: Request, res: Response): Promise<void> => {
+const forgotPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   try {
     const { email } = req.body;
+
+    const emailErrors = validateEmail(email);
+    if (emailErrors.length > 0) {
+      throw new InvalidInput("Invalid email", emailErrors);
+    }
     const user = await userModel.getUser(email);
     if (!user) {
-      res.status(404).json({ success: false, error: "User not found" });
-      return;
+      throw new NotFound("User not found");
     }
 
     const existingToken = await authModel.retrieveToken(user.id);
@@ -217,11 +205,7 @@ const forgotPassword = async (req: Request, res: Response): Promise<void> => {
       existingToken &&
       existingToken.expiration_timestamp > currentTimestamp
     ) {
-      res.status(409).json({
-        success: false,
-        error: "Reset token already sent, please check email",
-      });
-      return;
+      throw new BadRequest("A reset token has already been sent");
     }
 
     const resetToken = await authService.generateToken();
@@ -231,7 +215,7 @@ const forgotPassword = async (req: Request, res: Response): Promise<void> => {
       user.id,
       resetToken,
       expiration_timestamp,
-      "password",
+      "password"
     );
 
     const link = `${CLIENT_URL}/api/auth/reset-password/${resetToken}`;
@@ -240,55 +224,40 @@ const forgotPassword = async (req: Request, res: Response): Promise<void> => {
       email,
       "Password Reset Request",
       { firstName: user.first_name, lastName: user.last_name, link },
-      "./templates/passwordReset.handlebars",
+      "../../templates/passwordReset.handlebars"
     );
 
     if (emailStatus !== "sent") {
-      res.status(500).json({
-        success: false,
-        error: "internal server error",
-      });
-      return;
+      throw new ServerError("internal server error, could not send email");
     }
 
     res
       .status(200)
       .json({ success: true, message: "Password reset email sent" });
   } catch (error) {
-    logger.error(`forgotPassword ${error}`);
-
-    res.status(500).json({
-      success: false,
-      error: "internal server error",
-    });
+    logger.error(`forgotPassword error: ${error}`);
+    next(error);
   }
 };
 
-const resetPassword = async (req: Request, res: Response): Promise<void> => {
+const resetPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   try {
     const { token } = req.params;
     const { password, email } = req.body;
 
     const user = await userModel.getUser(email);
     if (!user) {
-      res.status(404).json({ success: false, error: "user not found" });
-      return;
+      throw new NotFound("User not found");
     }
 
     const existingToken = await authModel.retrieveToken(user.id);
     if (!existingToken || token != existingToken.token_hash) {
-      res.status(401).json({ success: false, error: "invalid token" });
-      return;
+      throw new Unauthorized("Invalid token");
     }
-
-    // const currentTimestamp = new Date().getTime();
-    // if (currentTimestamp > hashedToken.expiration_timestamp) {
-    //   await authModel.deleteToken(user.id);
-    //   return res.status(400).json({
-    //     success: false,
-    //     error: "token expired, request for another one",
-    //   });
-    // }
 
     // Hash the new password and update the user
     const hashedPassword = await passwordUtil.hashPassword(password);
@@ -304,44 +273,39 @@ const resetPassword = async (req: Request, res: Response): Promise<void> => {
         firstName: user.first_name,
         lastName: user.last_name,
       },
-      "./templates/passwordResetSuccess.handlebars",
+      "../../templates/passwordResetSuccess.handlebars"
     );
 
     res
       .status(201)
       .json({ success: true, message: "Password reset successful" });
   } catch (error) {
-    logger.error(error);
-
-    res.status(500).json({
-      success: false,
-      error: "internal server error",
-    });
+    logger.error(`resetPassword error: ${error}`);
+    next(error);
   }
 };
 
-const logout = async (_req: Request, res: Response) => {
+const logout = async (_req: Request, res: Response, next: NextFunction) => {
   try {
     // TODO
-    res.status(204).end();
+    res.status(200).end();
   } catch (error) {
-    logger.error(error);
-
-    res.status(500).json({
-      success: false,
-      error: "internal server error",
-    });
+    logger.error(`logout error: ${error}`);
+    next(error);
   }
 };
 
-const refreshToken = async (_req: Request, res: Response) => {
+const refreshToken = async (
+  _req: Request,
+  _res: Response,
+  next: NextFunction
+) => {
   try {
     // TODO
     // Add logic to refresh the token, involve validating the existing token, generating a new one, and updating the user's session
-    // res.status(200).json({ success: true, token: newToken });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, error: "internal server error" });
+    logger.error(`refreshToken error: ${error}`);
+    next(error);
   }
 };
 
