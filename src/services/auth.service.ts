@@ -49,8 +49,8 @@ const generateJwt = (id: string) => {
 const verifyJwt = (token: string) => {
   let verified = false;
   try {
-    let t = jwt.verify(token.replace("Bearer ", ""), JWT_SECRET as string);
-    console.log(t);
+    jwt.verify(token.replace("Bearer ", ""), JWT_SECRET as string);
+    // console.log(t);
   } catch (error) {
     logger.error(`verifyJwt error: ${error}`);
   }
