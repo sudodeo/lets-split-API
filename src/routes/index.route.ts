@@ -1,4 +1,4 @@
-import "express-async-errors"
+import "express-async-errors";
 import { Router } from "express";
 
 import authRoutes from "./auth.route";
@@ -15,13 +15,6 @@ router.use("/currencies", currenciesRoute);
 
 router.get("/", (_, res) => {
   res.redirect("/api/docs");
-});
-
-router.use((_, res) => {
-  res.status(404).json({
-    success: false,
-    error: "The requested resource was not found on this server",
-  });
 });
 
 export default router;

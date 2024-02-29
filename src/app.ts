@@ -6,8 +6,13 @@ import morgan from "morgan";
 import compression from "compression";
 import responseTime from "response-time";
 
-import indexRoute from "./routes/index.route.js";
-import httpMethodHandler from "./middleware/httpMethodHandler.js";
+import indexRoute from "./routes/index.route";
+import "./process";
+import {
+  errorHandler,
+  methodNotAllowed,
+  routeNotFound,
+} from "./middleware/error.middleware";
 
 const app = express();
 
@@ -25,12 +30,9 @@ if (process.env.NODE_ENV === "dev") {
   app.set("trust proxy", 1); // trust first proxy
 }
 
-app.use(httpMethodHandler);
-
+app.use(methodNotAllowed);
 app.use("/api/v1", indexRoute);
-
-app.get("/", (_, res) => {
-  res.redirect("/api/docs");
-});
+app.use(routeNotFound);
+app.use(errorHandler);
 
 export default app;
