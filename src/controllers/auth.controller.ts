@@ -127,6 +127,11 @@ const login = async (
       throw new NotFound("User not found");
     }
 
+    const emailErrors = validateEmail(email);
+    if (emailErrors.length > 0) {
+      throw new InvalidInput("Invalid email", emailErrors);
+    }
+    
     const passwordMatch = await passwordUtil.isValidPassword(
       password,
       user.password
