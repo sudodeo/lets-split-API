@@ -9,7 +9,6 @@ const storeToken = async (
 ) => {
   const client = await pool.connect();
   try {
-    console.log(typeof expiration_timestamp);
     const storedToken = await client.query(
       "INSERT INTO tokens(user_id,token_hash, expiration_timestamp, token_type) VALUES ($1,$2,(to_timestamp($3 / 1000.0)), $4) RETURNING *;",
       [user_id, token, expiration_timestamp, token_type],

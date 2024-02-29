@@ -81,8 +81,6 @@ const verifyEmail = async (
     const currentTimestamp = new Date().getTime();
 
     // Check if the provided token is invalid
-    console.log(existingToken.token_hash);
-    console.log(token);
     if (existingToken && existingToken.token_hash !== token) {
       throw new BadRequest("Invalid token");
     }
