@@ -2,7 +2,7 @@ import { ValidationError } from "../types/error.type";
 import { User } from "../types/user.types";
 
 export const validateRegistration = async (
-  payload: User
+  payload: User,
 ): Promise<ValidationError[]> => {
   const errors: ValidationError[] = [];
 

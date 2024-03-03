@@ -21,7 +21,7 @@ class AppError extends Error {
   constructor(
     statusCode: HttpCode,
     message: string,
-    error: Record<string, any> = {}
+    error: Record<string, any> = {},
   ) {
     super(message);
     this.status = statusCode;
@@ -78,7 +78,11 @@ export const routeNotFound = (req: Request, res: Response) => {
   });
 };
 
-export const methodNotAllowed = (req: Request, res: Response, next: NextFunction) => {
+export const methodNotAllowed = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   const allowedMethods = getAllowedMethodsForEndpoint(req.path);
   if (allowedMethods.length === 0) {
     // endpoint does not exist
@@ -93,13 +97,13 @@ export const methodNotAllowed = (req: Request, res: Response, next: NextFunction
       allowedMethods,
     });
   }
-}
+};
 
 export const errorHandler = (
   err: AppError,
   _req: Request,
   res: Response,
-  _next: NextFunction
+  _next: NextFunction,
 ) => {
   const payload = {
     success: false,

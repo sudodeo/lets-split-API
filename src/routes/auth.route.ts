@@ -14,13 +14,13 @@ authRouter.post("/verify/:token", authController.verifyEmail);
 authRouter.post(
   "/logout",
   authMiddleware.authenticateToken,
-  authController.logout
+  authController.logout,
 );
 
 authRouter.post(
   "/refresh",
   authMiddleware.authenticateToken,
-  authController.refreshToken
+  authController.refreshToken,
 );
 
 authRouter.post("/forgot-password", authController.forgotPassword);

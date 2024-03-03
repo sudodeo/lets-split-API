@@ -23,7 +23,7 @@ const sendVerificationMail = async (firstName: string, email: string) => {
     email,
     "Verify Email",
     { firstName, link },
-    "../../templates/verifyMail.handlebars"
+    "../../templates/verifyMail.handlebars",
   );
 
   if (emailStatus !== "sent") {
@@ -42,7 +42,7 @@ const generateJwt = (id: string) => {
       aud: "SplitCrew",
     },
     JWT_SECRET as string,
-    { expiresIn: maxAge }
+    { expiresIn: maxAge },
   );
 };
 

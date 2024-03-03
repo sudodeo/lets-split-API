@@ -19,7 +19,7 @@ import {
 const register = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> => {
   try {
     const errors = await validateRegistration(req.body);
@@ -35,7 +35,7 @@ const register = async (
 
     const verifyToken = await authService.sendVerificationMail(
       firstName,
-      email
+      email,
     );
 
     if (verifyToken === "") {
@@ -53,7 +53,7 @@ const register = async (
       user.id,
       verifyToken,
       expiration_timestamp,
-      "email"
+      "email",
     );
 
     res.status(201).json({ success: true, user: userJSON });
@@ -66,7 +66,7 @@ const register = async (
 const verifyEmail = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> => {
   try {
     const { token } = req.params;
@@ -89,7 +89,7 @@ const verifyEmail = async (
     if (currentTimestamp > existingToken.expiration_timestamp) {
       const verifyToken = await authService.sendVerificationMail(
         user.first_name,
-        user.email
+        user.email,
       );
       if (verifyToken === "") {
         throw new ServerError("internal server error, could not send token");
@@ -100,7 +100,7 @@ const verifyEmail = async (
         user.id,
         verifyToken,
         expiration_timestamp,
-        "email"
+        "email",
       );
 
       throw new BadRequest("token expired, request for another one");
@@ -118,7 +118,7 @@ const verifyEmail = async (
 const login = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> => {
   try {
     const { email, password } = req.body;
@@ -131,10 +131,10 @@ const login = async (
     if (emailErrors.length > 0) {
       throw new InvalidInput("Invalid email", emailErrors);
     }
-    
+
     const passwordMatch = await passwordUtil.isValidPassword(
       password,
-      user.password
+      user.password,
     );
     if (!passwordMatch) {
       throw new Unauthorized("Invalid credentials");
@@ -151,7 +151,7 @@ const login = async (
       ) {
         const verifyToken = await authService.sendVerificationMail(
           user.first_name,
-          user.email
+          user.email,
         );
         if (verifyToken === "") {
           throw new ServerError("internal server error, could not send token");
@@ -162,12 +162,12 @@ const login = async (
           user.id,
           verifyToken,
           expiration_timestamp,
-          "email"
+          "email",
         );
       }
 
       throw new Unauthorized(
-        "please verify your email address. A verification link has been sent to your email"
+        "please verify your email address. A verification link has been sent to your email",
       );
     }
 
@@ -186,7 +186,7 @@ const login = async (
 const forgotPassword = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> => {
   try {
     const { email } = req.body;
@@ -218,7 +218,7 @@ const forgotPassword = async (
       user.id,
       resetToken,
       expiration_timestamp,
-      "password"
+      "password",
     );
 
     const link = `${CLIENT_URL}/api/auth/reset-password/${resetToken}`;
@@ -227,7 +227,7 @@ const forgotPassword = async (
       email,
       "Password Reset Request",
       { firstName: user.first_name, lastName: user.last_name, link },
-      "../../templates/passwordReset.handlebars"
+      "../../templates/passwordReset.handlebars",
     );
 
     if (emailStatus !== "sent") {
@@ -246,7 +246,7 @@ const forgotPassword = async (
 const resetPassword = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> => {
   try {
     const { token } = req.params;
@@ -276,7 +276,7 @@ const resetPassword = async (
         firstName: user.first_name,
         lastName: user.last_name,
       },
-      "../../templates/passwordResetSuccess.handlebars"
+      "../../templates/passwordResetSuccess.handlebars",
     );
 
     res
@@ -301,7 +301,7 @@ const logout = async (_req: Request, res: Response, next: NextFunction) => {
 const refreshToken = async (
   _req: Request,
   _res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     // TODO
