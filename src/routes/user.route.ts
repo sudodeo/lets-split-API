@@ -3,6 +3,7 @@ import userController from "../controllers/user.controller";
 
 const userRouter = Router();
 
+// admin routes
 userRouter.get("/:id", userController.getUser);
 
 userRouter.delete("/:id", userController.deleteUser);
