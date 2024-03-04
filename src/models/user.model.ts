@@ -5,7 +5,9 @@ import { UpdateUser, User } from "../types/user.types";
 const getAllUsers = async () => {
   const client = await pool.connect();
   try {
-    const result = await client.query("SELECT * FROM users;");
+    const result = await client.query(
+      "SELECT id, first_name, last_name, email, address, dob, role, is_verified, created_at FROM users;"
+    );
     return result.rows;
   } catch (error) {
     logger.error(`getAllUsers db error: ${error}`);
@@ -18,9 +20,10 @@ const getAllUsers = async () => {
 const getUserByEmail = async (email: string): Promise<User> => {
   const client = await pool.connect();
   try {
-    const result = await client.query("SELECT * FROM users WHERE email=$1;", [
-      email,
-    ]);
+    const result = await client.query(
+      "SELECT id, first_name, last_name, email, address, dob, role, is_verified, created_at FROM users WHERE email=$1;",
+      [email]
+    );
     return result.rows[0];
   } catch (error) {
     logger.error(`getUserByEmail db error: ${error}`);
@@ -33,7 +36,10 @@ const getUserByEmail = async (email: string): Promise<User> => {
 const getUserByID = async (id: string): Promise<User> => {
   const client = await pool.connect();
   try {
-    const result = await client.query("SELECT * FROM users WHERE id=$1;", [id]);
+    const result = await client.query(
+      "SELECT id, first_name, last_name, email, address, dob, role, is_verified, created_at FROM users WHERE id=$1;",
+      [id]
+    );
     return result.rows[0];
   } catch (error) {
     logger.error(`getUserByID db error: ${error}`);
@@ -47,7 +53,7 @@ const createUser = async (user: User): Promise<User> => {
   const client = await pool.connect();
   try {
     const result = await client.query(
-      "INSERT INTO users(first_name, last_name, email, password, address, dob) VALUES($1, $2, $3, $4, $5, $6) RETURNING *;",
+      "INSERT INTO users(first_name, last_name, email, password, address, dob) VALUES($1, $2, $3, $4, $5, $6) RETURNING id, first_name, last_name, email, address, dob, role, is_verified, created_at;",
       [
         user.firstName,
         user.lastName,
@@ -73,7 +79,7 @@ const updateUser = async (id: String, user: UpdateUser): Promise<User> => {
   try {
     const setClause = keys.map((key) => `${key}='${user[key]}'`).join(", ");
 
-    const query = `UPDATE users SET ${setClause} WHERE id ='${id}' RETURNING *;`;
+    const query = `UPDATE users SET ${setClause} WHERE id ='${id}' RETURNING id, first_name, last_name, email, address, dob, role, is_verified, created_at;;`;
 
     const result = await client.query(`${query}`);
 
@@ -86,4 +92,10 @@ const updateUser = async (id: String, user: UpdateUser): Promise<User> => {
   }
 };
 
-export default { getAllUsers, getUserByEmail, getUserByID, createUser, updateUser };
+export default {
+  getAllUsers,
+  getUserByEmail,
+  getUserByID,
+  createUser,
+  updateUser,
+};
