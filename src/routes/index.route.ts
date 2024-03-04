@@ -6,23 +6,23 @@ import healthRouter from "./health.route";
 import expenseRouter from "./expense.route";
 import currenciesRouter from "./currencies.route";
 import authMiddleware from "../middleware/auth.middleware";
-import profileRouter from "./userProfile.route"
+import profileRouter from "./userProfile.route";
+import userRouter from "./user.route";
 
 const router = Router();
 
+router.get("/", (_, res) => {
+  res.redirect("/api/docs");
+});
 router.use("/health", healthRouter);
 router.use("/auth", authRouter);
 router.use("/currencies", currenciesRouter);
 
 // Apply authorization middleware to all routes declared after this point
 router.use(authMiddleware.authorizeUser);
-router.use("/profile", profileRouter)
 
+router.use("/profile", profileRouter);
+router.use("/users", userRouter);
 router.use("/expenses", expenseRouter);
-
-
-router.get("/", (_, res) => {
-  res.redirect("/api/docs");
-});
 
 export default router;
