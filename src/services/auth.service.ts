@@ -1,4 +1,4 @@
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 import crypto from "crypto";
 
 import logger from "../config/loggerConfig";
@@ -46,15 +46,13 @@ const generateJwt = (id: string) => {
   );
 };
 
-const verifyJwt = (token: string) => {
-  let verified = false;
+const verifyJwt = (token: string): JwtPayload => {
   try {
-    jwt.verify(token.replace("Bearer ", ""), JWT_SECRET as string);
-    // console.log(t);
+    return jwt.verify(token.replace("Bearer ", ""), JWT_SECRET as string, {complete:true});
   } catch (error) {
     logger.error(`verifyJwt error: ${error}`);
+    throw error
   }
-  return verified;
 };
 
 const refreshJwt = (_token: string) => {
