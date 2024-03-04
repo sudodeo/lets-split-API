@@ -15,7 +15,7 @@ const getAllUsers = async () => {
   }
 };
 
-const getUser = async (email: string): Promise<User> => {
+const getUserByEmail = async (email: string): Promise<User> => {
   const client = await pool.connect();
   try {
     const result = await client.query("SELECT * FROM users WHERE email=$1;", [
@@ -23,7 +23,20 @@ const getUser = async (email: string): Promise<User> => {
     ]);
     return result.rows[0];
   } catch (error) {
-    logger.error(`getUser db error: ${error}`);
+    logger.error(`getUserByEmail db error: ${error}`);
+    throw error;
+  } finally {
+    client.release();
+  }
+};
+
+const getUserByID = async (id: string): Promise<User> => {
+  const client = await pool.connect();
+  try {
+    const result = await client.query("SELECT * FROM users WHERE id=$1;", [id]);
+    return result.rows[0];
+  } catch (error) {
+    logger.error(`getUserByID db error: ${error}`);
     throw error;
   } finally {
     client.release();
@@ -42,7 +55,7 @@ const createUser = async (user: User): Promise<User> => {
         user.password,
         user.address,
         user.dob,
-      ],
+      ]
     );
 
     return result.rows[0];
@@ -54,13 +67,13 @@ const createUser = async (user: User): Promise<User> => {
   }
 };
 
-const updateUser = async (user: UpdateUser): Promise<User> => {
+const updateUser = async (id: String, user: UpdateUser): Promise<User> => {
   const client = await pool.connect();
   const keys = Object.keys(user);
   try {
     const setClause = keys.map((key) => `${key}='${user[key]}'`).join(", ");
 
-    const query = `UPDATE users SET ${setClause} WHERE email ='${user.email}' RETURNING *;`;
+    const query = `UPDATE users SET ${setClause} WHERE id ='${id}' RETURNING *;`;
 
     const result = await client.query(`${query}`);
 
@@ -73,4 +86,4 @@ const updateUser = async (user: UpdateUser): Promise<User> => {
   }
 };
 
-export default { getAllUsers, getUser, createUser, updateUser };
+export default { getAllUsers, getUserByEmail, getUserByID, createUser, updateUser };

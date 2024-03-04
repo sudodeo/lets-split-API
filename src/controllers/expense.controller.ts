@@ -1,36 +1,43 @@
 import logger from "../config/loggerConfig";
 import expenseModel from "../models/expense.model";
 import currencyModel from "../models/currencies.model";
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
+import { BadRequest, Unauthorized } from "../middleware/error.middleware";
 
-const getAllExpenses = async (req: Request, res: Response): Promise<void> => {
+const getAllExpenses = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   const { created } = req.query;
 
   const userID = req.authUser?.id;
 
-  if (authUser == null) {
-    res.status(401).json({ success: false, error: "unauthorised" });
-    return;
+  if (userID == null) {
+    throw new Unauthorized("you do not have permission to perform this action");
   }
 
-  const user_id = authUser.id;
   let expenses = [];
   try {
-    if (created && created === "true") {
-      expenses = await expenseModel.getCreatedExpenses(user_id);
+    if (created === "true") {
+      expenses = await expenseModel.getCreatedExpenses(userID);
     } else {
-      expenses = await expenseModel.getAllExpenses(user_id);
+      expenses = await expenseModel.getAllExpenses(userID);
     }
 
-    res.status(200).json({ success: true, data: expenses });
+    res.status(200).json({ success: true, expenses });
   } catch (error) {
     logger.error(`getAllExpenses error: ${error}`);
 
-    res.status(500).json({ success: false, error: "internal server error" });
+    next(error);
   }
 };
 
-const getExpense = async (req: Request, res: Response): Promise<void> => {
+const getExpense = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   try {
     const { expenseID } = req.params;
     const expense = await expenseModel.getExpense(expenseID);
@@ -43,18 +50,20 @@ const getExpense = async (req: Request, res: Response): Promise<void> => {
   } catch (error) {
     logger.error(`getExpense error: ${error}`);
 
-    res.status(500).json({ success: false, error: "internal server error" });
+    next(error);
   }
 };
 
-const createExpense = async (req: Request, res: Response) => {
+const createExpense = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     // Check if the currency is supported
     const currency = await currencyModel.getCurrency(req.body.currency_code);
     if (!currency || !currency.is_active) {
-      return res
-        .status(400)
-        .json({ success: false, error: "Currency not supported" });
+      throw new BadRequest("Currency not supported");
     }
 
     req.body.currency_code_id = currency.id;
@@ -64,12 +73,10 @@ const createExpense = async (req: Request, res: Response) => {
       throw new Error("expense not created");
     }
 
-    return res.status(201).json({ success: true, expense });
+    res.status(201).json({ success: true, expense });
   } catch (error) {
     logger.error(`createExpense error: ${error}`);
-    return res
-      .status(500)
-      .json({ success: false, error: "Internal server error" });
+    next(error);
   }
 };
 
