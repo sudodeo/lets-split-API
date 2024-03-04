@@ -1,6 +1,6 @@
-# SplitCrew-API Documentation
+# SplitCrew Overview
 
-Welcome to the SplitCrew API documentation. This API is designed to simplify and streamline the process of splitting expenses among friends, family, or colleagues.
+Welcome to SplitCrew, an app designed to simplify and streamline the process of splitting expenses among friends, family, or colleagues.
 
 ## Database Schema
 
