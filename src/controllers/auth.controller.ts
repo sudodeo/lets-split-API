@@ -28,7 +28,7 @@ const register = async (
     }
 
     const { email, firstName } = req.body;
-    const existingUser = await userModel.getUser(email);
+    const existingUser = await userModel.getUserByEmail(email);
     if (existingUser) {
       throw new Conflict("User already exists");
     }
@@ -72,7 +72,7 @@ const verifyEmail = async (
     const { token } = req.params;
     const { email } = req.body;
 
-    const user = await userModel.getUser(email);
+    const user = await userModel.getUserByEmail(email);
     if (!user) {
       throw new NotFound("User not found");
     }
@@ -106,7 +106,7 @@ const verifyEmail = async (
       throw new BadRequest("token expired, request for another one");
     }
 
-    await userModel.updateUser({ email: user.email, is_verified: true });
+    await userModel.updateUser(user.id,{ email: user.email, is_verified: true });
 
     res.status(200).json({ success: true, message: "email verified" });
   } catch (error) {
@@ -122,9 +122,14 @@ const login = async (
 ): Promise<void> => {
   try {
     const { email, password } = req.body;
-    const user = await userModel.getUser(email);
+    const user = await userModel.getUserByEmail(email);
     if (!user) {
       throw new NotFound("User not found");
+    }
+
+    const emailErrors = validateEmail(email);
+    if (emailErrors.length > 0) {
+      throw new InvalidInput("Invalid email", emailErrors);
     }
 
     const passwordMatch = await passwordUtil.isValidPassword(
@@ -190,7 +195,7 @@ const forgotPassword = async (
     if (emailErrors.length > 0) {
       throw new InvalidInput("Invalid email", emailErrors);
     }
-    const user = await userModel.getUser(email);
+    const user = await userModel.getUserByEmail(email);
     if (!user) {
       throw new NotFound("User not found");
     }
@@ -247,7 +252,7 @@ const resetPassword = async (
     const { token } = req.params;
     const { password, email } = req.body;
 
-    const user = await userModel.getUser(email);
+    const user = await userModel.getUserByEmail(email);
     if (!user) {
       throw new NotFound("User not found");
     }
@@ -259,7 +264,7 @@ const resetPassword = async (
 
     // Hash the new password and update the user
     const hashedPassword = await passwordUtil.hashPassword(password);
-    await userModel.updateUser({ email, hashedPassword });
+    await userModel.updateUser(user.id,{ email, hashedPassword });
 
     // Delete the used token
     await authModel.deleteToken(user.id);

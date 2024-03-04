@@ -1,4 +1,4 @@
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 import crypto from "crypto";
 
 import logger from "../config/loggerConfig";
@@ -23,7 +23,7 @@ const sendVerificationMail = async (firstName: string, email: string) => {
     email,
     "Verify Email",
     { firstName, link },
-    "../../templates/verifyMail.handlebars"
+    "../../templates/verifyMail.handlebars",
   );
 
   if (emailStatus !== "sent") {
@@ -42,19 +42,17 @@ const generateJwt = (id: string) => {
       aud: "SplitCrew",
     },
     JWT_SECRET as string,
-    { expiresIn: maxAge }
+    { expiresIn: maxAge },
   );
 };
 
-const verifyJwt = (token: string) => {
-  let verified = false;
+const verifyJwt = (token: string): JwtPayload => {
   try {
-    jwt.verify(token.replace("Bearer ", ""), JWT_SECRET as string);
-    // console.log(t);
+    return jwt.verify(token.replace("Bearer ", ""), JWT_SECRET as string, {complete:true});
   } catch (error) {
     logger.error(`verifyJwt error: ${error}`);
+    throw error
   }
-  return verified;
 };
 
 const refreshJwt = (_token: string) => {

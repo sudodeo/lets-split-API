@@ -1,45 +1,36 @@
 import logger from "../config/loggerConfig";
-// import authService from "../services/auth.service";
+import authService from "../services/auth.service";
 import { NextFunction, Request, Response } from "express";
+import { ServerError, Unauthorized } from "./error.middleware";
 
-const authenticateToken = async (
+const authorizeUser = async (
   req: Request,
-  res: Response,
-  next: NextFunction,
+  _res: Response,
+  next: NextFunction
 ): Promise<void> => {
   try {
     const token = req.headers.authorization;
     if (!token) {
-      res.status(401).json({ success: false, error: "Access denied" });
-      return;
+      throw new Unauthorized("access denied");
     }
-    // const decoded = authService.verifyJwt(token);
-    // if (decoded.iss !== "authService") {
-    // }
-    // if (decoded.aud !== "SplitCrew") {
-    //   return res
-    //      .status(401)
-    //     .json({ success: false, error: "Invalid audience." });
-    // }
+    const decodedJwt = authService.verifyJwt(token);
+    if (decodedJwt == null) {
+      throw new ServerError("decoded jwt null");
+    }
+    const decodedPayload = decodedJwt.payload;
+    if (decodedPayload.iss !== "authService") {
+    }
+    if (decodedPayload.aud !== "SplitCrew") {
+      throw new Unauthorized("invalid audience");
+    }
 
-    // req.user = decoded;
+    req.authUser = { id: decodedPayload.sub, role: decodedPayload.role };
     next();
   } catch (error) {
-    logger.error(`authenticateToken error: ${error}`);
-
-    res.status(401).json({
-      success: false,
-      error: "Authentication Failed",
-    });
+    logger.error(`authorizeUser error: ${error}`);
+    next(error);
   }
-  next();
+  // next();
 };
 
-// const isAuth = async (req, res, next) => {
-//   if (!req.session.isAuth) {
-//     return res.status(401).json({ success: false, error: "unauthorised" });
-//   }
-//   next();
-// };
-
-export default { authenticateToken };
+export default { authorizeUser };

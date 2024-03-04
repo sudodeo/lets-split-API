@@ -3,4 +3,4 @@ export interface ValidationError {
   error: string;
 }
 
-// export type AppError 
+// export type AppError

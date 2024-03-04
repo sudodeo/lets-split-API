@@ -11,20 +11,14 @@ authRouter.post("/login", authController.login);
 
 authRouter.post("/verify/:token", authController.verifyEmail);
 
-authRouter.post(
-  "/logout",
-  authMiddleware.authenticateToken,
-  authController.logout
-);
-
-authRouter.post(
-  "/refresh",
-  authMiddleware.authenticateToken,
-  authController.refreshToken
-);
-
 authRouter.post("/forgot-password", authController.forgotPassword);
 
 authRouter.post("/reset-password/:token", authController.resetPassword);
+
+authRouter.use(authMiddleware.authorizeUser);
+
+authRouter.post("/logout", authController.logout);
+
+authRouter.post("/refresh", authController.refreshToken);
 
 export default authRouter;
