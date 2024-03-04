@@ -15,7 +15,7 @@ authRouter.post("/forgot-password", authController.forgotPassword);
 
 authRouter.post("/reset-password/:token", authController.resetPassword);
 
-authRouter.use(authMiddleware.authenticateToken);
+authRouter.use(authMiddleware.authorizeUser);
 
 authRouter.post("/logout", authController.logout);
 
