@@ -1,19 +1,25 @@
 import "express-async-errors";
 import { Router } from "express";
 
-import authRoutes from "./auth.route";
-import healthRoute from "./health.route";
-import expenseRoutes from "./expense.route";
-import currenciesRoute from "./currencies.route";
+import authRouter from "./auth.route";
+import healthRouter from "./health.route";
+import expenseRouter from "./expense.route";
+import currenciesRouter from "./currencies.route";
 import authMiddleware from "../middleware/auth.middleware";
+import profileRouter from "./userProfile.route"
 
 const router = Router();
 
-router.use("/health", healthRoute);
-router.use("/auth", authRoutes);
-router.use("/currencies", currenciesRoute);
-router.use(authMiddleware.authenticateToken);
-router.use("/expenses", expenseRoutes);
+router.use("/health", healthRouter);
+router.use("/auth", authRouter);
+router.use("/currencies", currenciesRouter);
+
+// Apply authorization middleware to all routes declared after this point
+router.use(authMiddleware.authorizeUser);
+router.use("/profile", profileRouter)
+
+router.use("/expenses", expenseRouter);
+
 
 router.get("/", (_, res) => {
   res.redirect("/api/docs");
