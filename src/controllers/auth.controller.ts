@@ -6,7 +6,11 @@ import authModel from "../models/auth.model";
 import authService from "../services/auth.service";
 import { CLIENT_URL } from "../config/index";
 import { NextFunction, Request, Response } from "express";
-import { validateEmail, validateRegistration } from "../utils/validator";
+import {
+  validateEmail,
+  validatePassword,
+  validateRegistration,
+} from "../utils/validator";
 import {
   BadRequest,
   Conflict,
@@ -106,7 +110,10 @@ const verifyEmail = async (
       throw new BadRequest("token expired, request for another one");
     }
 
-    await userModel.updateUser(user.id,{ email: user.email, is_verified: true });
+    await userModel.updateUser(user.id, {
+      email: user.email,
+      is_verified: true,
+    });
 
     res.status(200).json({ success: true, message: "email verified" });
   } catch (error) {
@@ -252,6 +259,16 @@ const resetPassword = async (
     const { token } = req.params;
     const { password, email } = req.body;
 
+    const emailErrors = validateEmail(email);
+    if (emailErrors.length > 0) {
+      throw new InvalidInput("invalid email", emailErrors);
+    }
+
+    const passwordErrors = validatePassword(password);
+    if (passwordErrors.length > 0) {
+      throw new InvalidInput("invalid password", passwordErrors);
+    }
+
     const user = await userModel.getUserByEmail(email);
     if (!user) {
       throw new NotFound("User not found");
@@ -264,7 +281,7 @@ const resetPassword = async (
 
     // Hash the new password and update the user
     const hashedPassword = await passwordUtil.hashPassword(password);
-    await userModel.updateUser(user.id,{ email, hashedPassword });
+    await userModel.updateUser(user.id, { email, hashedPassword });
 
     // Delete the used token
     await authModel.deleteToken(user.id);
