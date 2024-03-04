@@ -6,7 +6,7 @@ import { Request, Response } from "express";
 const getAllExpenses = async (req: Request, res: Response): Promise<void> => {
   const { created } = req.query;
 
-  const authUser = req.user;
+  const userID = req.authUser?.id;
 
   if (authUser == null) {
     res.status(401).json({ success: false, error: "unauthorised" });

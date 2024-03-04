@@ -23,8 +23,12 @@ export interface UpdateUser {
   [key: string]: any;
 }
 
+export interface AuthUser {
+  id: string;
+  role: string;
+}
 declare module "express" {
   interface Request {
-    user?: User;
+    authUser?: AuthUser;
   }
 }
