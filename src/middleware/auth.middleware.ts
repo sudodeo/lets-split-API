@@ -18,9 +18,10 @@ const authorizeUser = async (
       throw new ServerError("decoded jwt null");
     }
     const decodedPayload = decodedJwt.payload;
-    if (decodedPayload.iss !== "authService") {
+    if (decodedPayload.iss !== (process.env.JWT_ISS as string)) {
+      throw new Unauthorized("invalid issuer");
     }
-    if (decodedPayload.aud !== "SplitCrew") {
+    if (decodedPayload.aud !== (process.env.JWT_AUD as string)) {
       throw new Unauthorized("invalid audience");
     }
 

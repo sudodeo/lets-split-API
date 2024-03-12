@@ -38,8 +38,8 @@ const generateJwt = (id: string) => {
     {
       sub: id,
       iat: new Date().getTime(),
-      iss: "authService",
-      aud: "SplitCrew",
+      iss: process.env.JWT_ISS as string,
+      aud: process.env.JWT_AUD as string,
     },
     JWT_SECRET as string,
     { expiresIn: maxAge },
