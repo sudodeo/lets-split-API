@@ -9,7 +9,7 @@
     "dev": "nodemon --watch src --exec \"npm run start\" -e ts",
     "build": "rm -rf dist && tsc",
     "clean": "rm -rf dist",
-    "format": "npx prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "prettier": "npx prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "test": "mocha ./tests/*.test.js",
     "test:watch": "mocha --watch ./tests/*.test.js"
   },
