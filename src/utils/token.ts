@@ -4,14 +4,14 @@ import { JWT_SECRET } from "../config";
 import logger from "../config/loggerConfig";
 
 export const generateJwt = (id: string, role: string) => {
-  const maxAge = 5 * 60 * 1000; // 5 hours
+  const maxAge = 5 * 60 * 60 * 1000; // 5 hours
   return jwt.sign(
     {
       sub: id,
       iat: new Date().getTime(),
       iss: process.env.JWT_ISS as string,
       aud: process.env.JWT_AUD as string,
-      role
+      role,
     },
     JWT_SECRET as string,
     { expiresIn: maxAge }
