@@ -111,6 +111,13 @@ export function validateDob(dob: Date): ValidationError[] {
 
 export function validatePassword(password: string): ValidationError[] {
   const errors: ValidationError[] = [];
+  if (password == null || password == "") {
+    errors.push({
+      field: "email",
+      error: "email is required",
+    });
+    return errors;
+  }
 
   if (password.length < 8) {
     errors.push({
