@@ -21,7 +21,7 @@ class AppError extends Error {
   constructor(
     statusCode: HttpCode,
     message: string,
-    error: Record<string, any> = {},
+    error: Record<string, any> = {}
   ) {
     super(message);
     this.status = statusCode;
@@ -47,7 +47,7 @@ export class Forbidden extends AppError {
   }
 }
 
-export class NotFound extends AppError {
+export class ResourceNotFound extends AppError {
   constructor(message: string, error?: Record<string, any>) {
     super(HttpCode.NOT_FOUND, message, error);
   }
@@ -81,7 +81,7 @@ export const routeNotFound = (req: Request, res: Response) => {
 export const methodNotAllowed = (
   req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ) => {
   const allowedMethods = getAllowedMethodsForEndpoint(req.path);
   if (allowedMethods.length === 0) {
@@ -97,19 +97,19 @@ export const methodNotAllowed = (
       allowedMethods,
     });
   }
-  next()
+  next();
 };
 
 export const errorHandler = (
   err: AppError,
   _req: Request,
   res: Response,
-  _next: NextFunction,
+  _next: NextFunction
 ) => {
   const payload = {
     success: false,
     message: err.message,
-    errors: err.error,
+    details: err.error,
   };
 
   if (!err.status) {
