@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS users (
   "address" varchar,
   "dob" date NOT NULL,
   "role" varchar DEFAULT 'user',
-  "is_verified" boolean,
+  "is_verified" boolean DEFAULT FALSE,
   "created_at" timestamp DEFAULT (CURRENT_TIMESTAMP)
 );
 
@@ -58,44 +58,28 @@ CREATE TABLE IF NOT EXISTS user_sessions (
   "expire" timestamp(6) NOT NULL
 ) WITH (OIDS = FALSE);
 
-ALTER TABLE
-  "user_sessions"
-ADD
-  CONSTRAINT "session_pkey" PRIMARY KEY ("sid") NOT DEFERRABLE INITIALLY IMMEDIATE;
+ALTER TABLE "user_sessions"
+ADD CONSTRAINT "session_pkey" PRIMARY KEY ("sid") NOT DEFERRABLE INITIALLY IMMEDIATE;
 
 CREATE INDEX "IDX_session_expire" ON "user_sessions" ("expire");
 
-ALTER TABLE
-  "expenses"
-ADD
-  FOREIGN KEY ("currency_code_id") REFERENCES "currencies" ("id");
+ALTER TABLE "expenses"
+ADD FOREIGN KEY ("currency_code_id") REFERENCES "currencies" ("id");
 
-ALTER TABLE
-  "expenses"
-ADD
-  FOREIGN KEY ("created_by") REFERENCES "users" ("id");
+ALTER TABLE "expenses"
+ADD FOREIGN KEY ("created_by") REFERENCES "users" ("id");
 
-ALTER TABLE
-  "expense_participants"
-ADD
-  FOREIGN KEY ("user_id") REFERENCES "users" ("id");
+ALTER TABLE "expense_participants"
+ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
 
-ALTER TABLE
-  "expense_participants"
-ADD
-  FOREIGN KEY ("expense_id") REFERENCES "expenses" ("id");
+ALTER TABLE "expense_participants"
+ADD FOREIGN KEY ("expense_id") REFERENCES "expenses" ("id");
 
-ALTER TABLE
-  "expense_participants"
-ADD
-  FOREIGN KEY ("currency_code_id") REFERENCES "currencies" ("id");
+ALTER TABLE "expense_participants"
+ADD FOREIGN KEY ("currency_code_id") REFERENCES "currencies" ("id");
 
-ALTER TABLE
-  "referrals"
-ADD
-  FOREIGN KEY ("referring_user_id") REFERENCES "users" ("id");
+ALTER TABLE "referrals"
+ADD FOREIGN KEY ("referring_user_id") REFERENCES "users" ("id");
 
-ALTER TABLE
-  "referrals"
-ADD
-  FOREIGN KEY ("referred_user_id") REFERENCES "users" ("id");
+ALTER TABLE "referrals"
+ADD FOREIGN KEY ("referred_user_id") REFERENCES "users" ("id");
