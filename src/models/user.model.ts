@@ -6,7 +6,7 @@ const getAllUsers = async () => {
   const client = await pool.connect();
   try {
     const result = await client.query(
-      "SELECT id, first_name, last_name, email, address, dob, role, is_verified, created_at FROM users;"
+      "SELECT id, first_name, last_name, email, address, dob, role, is_verified, created_at FROM users;",
     );
     return result.rows;
   } catch (error) {
@@ -21,8 +21,8 @@ const getUserByEmail = async (email: string): Promise<User> => {
   const client = await pool.connect();
   try {
     const result = await client.query(
-      "SELECT id, first_name, last_name, email, address, dob, role, is_verified, created_at FROM users WHERE email=$1;",
-      [email]
+      'SELECT id, first_name AS "firstName", last_name AS "lastName", email, password, address, dob, role, is_verified AS "isVerified", created_at AS "createdAt" FROM users WHERE email=$1;',
+      [email],
     );
     return result.rows[0];
   } catch (error) {
@@ -38,7 +38,7 @@ const getUserByID = async (id: string): Promise<User> => {
   try {
     const result = await client.query(
       "SELECT id, first_name, last_name, email, address, dob, role, is_verified, created_at FROM users WHERE id=$1;",
-      [id]
+      [id],
     );
     return result.rows[0];
   } catch (error) {
@@ -61,7 +61,7 @@ const createUser = async (user: User): Promise<User> => {
         user.password,
         user.address,
         user.dob,
-      ]
+      ],
     );
 
     return result.rows[0];
