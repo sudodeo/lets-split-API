@@ -17,12 +17,6 @@ let level = "info";
 if (NODE_ENV === "dev") {
   level = "debug";
 }
-// const errorStackTracerFormat = winston.format((info) => {
-//   if (info.meta && info.meta instanceof Error) {
-//     info.message = `${info.message} ${info.meta.stack}`;
-//   }
-//   return info;
-// });
 
 const logger = winston.createLogger({
   level,
@@ -30,12 +24,6 @@ const logger = winston.createLogger({
     winston.format.errors({ stack: true }),
     winston.format.timestamp(),
     winston.format.simple(),
-    // winston.format.printf((info) => {
-    //   const { timestamp, level, message, ...meta } = info;
-    //   return `${timestamp} [${level}]: ${message} ${
-    //     Object.keys(meta).length ? JSON.stringify(meta, null, 2) : ""
-    //   }`;
-    // })
     winston.format.prettyPrint(),
     winston.format.align(),
     winston.format.colorize({ level: true, colors: customColors }),
@@ -71,16 +59,5 @@ const logger = winston.createLogger({
     }),
   ],
 });
-
-// // Extend the logger with a dynamic log level change function
-// logger.setLogLevel = (newLevel) => {
-//   if (Object.keys(customColors).includes(newLevel)) {
-//     logger.level = newLevel;
-//   } else {
-//     logger.warn(
-//       `Invalid log level: ${newLevel}. Keeping the current level: ${logger.level}`
-//     );
-//   }
-// };
 
 export default logger;
