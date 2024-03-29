@@ -62,16 +62,7 @@ const createExpense = async (data: Expense) => {
     );
     const expense = expenseR.rows[0];
     const expenseID = expense.id;
-    // const expense_participants = data.participants.map((participant) => [
-    //   {
-    //     expense_id: expenseID,
-    //     user_id: participant.user_id,
-    //     is_settled: participant.is_settled,
-    //     payment_cut: participant.payment_cut,
-    //     currency_code: participant.currency_code,
-    //     comments: participant.comments,
-    //   },
-    // ]);
+    
     const expense_participants = data.participants.map(
       (participant: ExpenseParticipant) => {
         return {
@@ -85,9 +76,6 @@ const createExpense = async (data: Expense) => {
       },
     );
 
-    // const values = v.map((k) => {
-    //   participantKeys;
-    // });
     for (let participant of expense_participants) {
       const participantKeys = Object.keys(participant).join(", ");
       const participantValues = Object.values(participant).join(", ");

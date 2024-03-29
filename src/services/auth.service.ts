@@ -12,26 +12,18 @@ import {
 import authModel from "../models/auth.model";
 import { sendEmail, sendVerificationMail } from "../utils/email";
 import { generateJwt, generateToken } from "../utils/token";
-import {
-  validateEmail,
-  validatePassword,
-  validateRegistration,
-} from "../utils/validator";
+import { validateEmail, validatePassword } from "../utils/validator";
 import { CLIENT_URL } from "../config";
 
 export class AuthService {
-  static async registerUser(userData: User) {
-    const errors = await validateRegistration(userData);
-    if (errors.length > 0) {
-      throw new InvalidInput("Invalid input", errors);
-    }
-
+  async registerUser(userData: User) {
     const { email } = userData;
 
     const existingUser = await userModel.getUserByEmail(email);
     if (existingUser) {
       throw new Conflict("User already exists");
     }
+
     const verifyToken = await sendVerificationMail(
       userData.firstName,
       userData.email
@@ -57,7 +49,7 @@ export class AuthService {
     return user;
   }
 
-  static async verifyEmail(email: string, token: string) {
+  async verifyEmail(email: string, token: string) {
     const user = await userModel.getUserByEmail(email);
     if (!user) {
       throw new ResourceNotFound("User not found");
@@ -82,7 +74,7 @@ export class AuthService {
     });
   }
 
-  static async loginUser(
+  async loginUser(
     email: string,
     password: string
   ): Promise<{ user: User; token: string }> {
@@ -141,7 +133,7 @@ export class AuthService {
     return { user, token };
   }
 
-  static async forgotPassword(email: string) {
+  async forgotPassword(email: string) {
     const emailErrors = validateEmail(email);
     if (emailErrors.length > 0) {
       throw new InvalidInput("Invalid email", emailErrors);
@@ -187,7 +179,7 @@ export class AuthService {
     }
   }
 
-  static async resetPassword(email: string, token: string, password: string) {
+  async resetPassword(email: string, token: string, password: string) {
     const emailErrors = validateEmail(email);
     if (emailErrors.length > 0) {
       throw new InvalidInput("invalid email", emailErrors);
