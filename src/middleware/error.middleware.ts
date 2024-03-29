@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { getAllowedMethodsForEndpoint } from "./httpMethodHandler";
+import { getAllowedMethodsForEndpoint } from "../utils/httpMethodHandler";
 
 export enum HttpCode {
   OK = 200,
