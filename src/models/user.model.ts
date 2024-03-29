@@ -2,7 +2,7 @@ import pool from "../db/connection";
 import logger from "../config/loggerConfig";
 import { UpdateUser, User } from "../types/user.types";
 
-const getAllUsers = async () => {
+const listUsers = async (): Promise<User[]> => {
   const client = await pool.connect();
   try {
     const result = await client.query(
@@ -10,7 +10,7 @@ const getAllUsers = async () => {
     );
     return result.rows;
   } catch (error) {
-    logger.error(`getAllUsers db error: ${error}`);
+    logger.error(`listUsers db error: ${error}`);
     return [];
   } finally {
     client.release();
@@ -109,7 +109,7 @@ const deleteUser = async (id: string): Promise<User> => {
 };
 
 export default {
-  getAllUsers,
+  listUsers,
   getUserByEmail,
   getUserByID,
   createUser,

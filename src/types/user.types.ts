@@ -20,6 +20,7 @@ export interface UpdateUser {
   address?: string;
   password?: string;
   isVerified?: boolean;
+  [key: string]: any;
 }
 
 export interface AuthUser {
