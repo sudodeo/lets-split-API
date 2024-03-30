@@ -25,8 +25,8 @@ const transporter = nodemailer.createTransport({
 export const sendEmail = async (
   email: string,
   subject: string,
-  payload: Object,
-  template: string
+  payload: Record<string, string>,
+  template: string,
 ) => {
   try {
     const source = fs.readFileSync(path.join(__dirname, template), "utf8");
@@ -47,19 +47,19 @@ export const sendEmail = async (
 
 export const sendVerificationMail = async (
   firstName: string,
-  email: string
+  email: string,
 ) => {
   try {
     const verifyToken = await generateToken();
     const link = `${CLIENT_URL}/api/auth/verify/${verifyToken}`;
-    
+
     const emailStatus = await sendEmail(
       email,
       "Verify Email",
       { firstName, link },
-      "../../templates/verifyMail.handlebars"
+      "../../templates/verifyMail.handlebars",
     );
-    
+
     if (emailStatus !== "sent") {
       throw new Error("Email sending failed");
     }
