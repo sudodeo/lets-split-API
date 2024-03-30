@@ -14,7 +14,7 @@ export const generateJwt = (id: string, role: string) => {
       role,
     },
     JWT_SECRET as string,
-    { expiresIn: maxAge }
+    { expiresIn: maxAge },
   );
 };
 
@@ -29,12 +29,7 @@ export const verifyJwt = (token: string): JwtPayload => {
   }
 };
 
-export const refreshJwt = (_token: string) => {
-  // TODO
-};
-
 export const generateToken = async () => {
   const token = crypto.randomBytes(32).toString("hex");
-  // const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
   return token;
 };
