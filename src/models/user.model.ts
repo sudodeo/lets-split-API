@@ -2,15 +2,15 @@ import pool from "../db/connection";
 import logger from "../config/loggerConfig";
 import { UpdateUser, User } from "../types/user.types";
 
-const getAllUsers = async () => {
+const listUsers = async (): Promise<User[]> => {
   const client = await pool.connect();
   try {
     const result = await client.query(
-      "SELECT id, first_name, last_name, email, address, dob, role, is_verified, created_at FROM users;"
+      "SELECT id, first_name, last_name, email, address, dob, role, is_verified, created_at FROM users;",
     );
     return result.rows;
   } catch (error) {
-    logger.error(`getAllUsers db error: ${error}`);
+    logger.error(`listUsers db error: ${error}`);
     return [];
   } finally {
     client.release();
@@ -21,8 +21,8 @@ const getUserByEmail = async (email: string): Promise<User> => {
   const client = await pool.connect();
   try {
     const result = await client.query(
-      "SELECT id, first_name, last_name, email, address, dob, role, is_verified, created_at FROM users WHERE email=$1;",
-      [email]
+      'SELECT id, first_name AS "firstName", last_name AS "lastName", email, password, address, dob, role, is_verified AS "isVerified", created_at AS "createdAt" FROM users WHERE email=$1;',
+      [email],
     );
     return result.rows[0];
   } catch (error) {
@@ -38,7 +38,7 @@ const getUserByID = async (id: string): Promise<User> => {
   try {
     const result = await client.query(
       "SELECT id, first_name, last_name, email, address, dob, role, is_verified, created_at FROM users WHERE id=$1;",
-      [id]
+      [id],
     );
     return result.rows[0];
   } catch (error) {
@@ -61,7 +61,7 @@ const createUser = async (user: User): Promise<User> => {
         user.password,
         user.address,
         user.dob,
-      ]
+      ],
     );
 
     return result.rows[0];
@@ -73,7 +73,7 @@ const createUser = async (user: User): Promise<User> => {
   }
 };
 
-const updateUser = async (id: String, user: UpdateUser): Promise<User> => {
+const updateUser = async (id: string, user: UpdateUser): Promise<User> => {
   const client = await pool.connect();
   const keys = Object.keys(user);
   try {
@@ -92,10 +92,27 @@ const updateUser = async (id: String, user: UpdateUser): Promise<User> => {
   }
 };
 
+const deleteUser = async (id: string): Promise<User> => {
+  const client = await pool.connect();
+  try {
+    const result = await client.query(
+      "DELETE FROM users WHERE id=$1 RETURNING id, first_name, last_name, email, address, dob, role, is_verified, created_at;",
+      [id],
+    );
+    return result.rows[0];
+  } catch (error) {
+    logger.error(`deleteUser db error: ${error}`);
+    throw error;
+  } finally {
+    client.release();
+  }
+};
+
 export default {
-  getAllUsers,
+  listUsers,
   getUserByEmail,
   getUserByID,
   createUser,
   updateUser,
+  deleteUser,
 };

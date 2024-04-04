@@ -3,8 +3,13 @@ import nodemailer from "nodemailer";
 import Handlebars from "handlebars";
 import path from "path";
 
-import { GMAIL_USERNAME, GMAIL_APP_PASSWORD } from "../config/index";
+import {
+  GMAIL_USERNAME,
+  GMAIL_APP_PASSWORD,
+  CLIENT_URL,
+} from "../config/index";
 import logger from "../config/loggerConfig";
+import { generateToken } from "./token";
 
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
@@ -20,27 +25,48 @@ const transporter = nodemailer.createTransport({
 export const sendEmail = async (
   email: string,
   subject: string,
-  payload: Object,
+  payload: Record<string, string>,
   template: string,
 ) => {
-  const source = fs.readFileSync(path.join(__dirname, template), "utf8");
-  const compiledTemplate = Handlebars.compile(source);
-  const mailOptions = {
-    from: GMAIL_USERNAME,
-    to: email,
-    subject,
-    html: compiledTemplate(payload),
-  };
-  await transporter.sendMail(mailOptions, (error, _): string => {
-    if (error) {
-      logger.error(error);
-      return "failed";
-    }
+  try {
+    const source = fs.readFileSync(path.join(__dirname, template), "utf8");
+    const compiledTemplate = Handlebars.compile(source);
+    const mailOptions = {
+      from: GMAIL_USERNAME,
+      to: email,
+      subject,
+      html: compiledTemplate(payload),
+    };
+    await transporter.sendMail(mailOptions);
     return "sent";
-  });
-  return "sent";
+  } catch (error) {
+    logger.error(error);
+    return "failed";
+  }
 };
 
-export default {
-  sendEmail,
+export const sendVerificationMail = async (
+  firstName: string,
+  email: string,
+) => {
+  try {
+    const verifyToken = await generateToken();
+    const link = `${CLIENT_URL}/api/auth/verify/${verifyToken}`;
+
+    const emailStatus = await sendEmail(
+      email,
+      "Verify Email",
+      { firstName, link },
+      "../../templates/verifyMail.handlebars",
+    );
+
+    if (emailStatus !== "sent") {
+      throw new Error("Email sending failed");
+    }
+
+    return verifyToken;
+  } catch (error) {
+    logger.error(error);
+    return "";
+  }
 };

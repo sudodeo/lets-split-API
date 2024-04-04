@@ -1,340 +1,127 @@
 import logger from "../config/loggerConfig";
-import passwordUtil from "../utils/password.util";
-import emailUtil from "../utils/email";
-import userModel from "../models/user.model";
-import authModel from "../models/auth.model";
-import authService from "../services/auth.service";
-import { CLIENT_URL } from "../config/index";
-import { NextFunction, Request, Response } from "express";
+import redisClient from "../db/redis";
 import {
-  validateEmail,
-  validatePassword,
-  validateRegistration,
-} from "../utils/validator";
-import {
-  BadRequest,
-  Conflict,
+  HttpCode,
   InvalidInput,
-  NotFound,
-  ServerError,
   Unauthorized,
 } from "../middleware/error.middleware";
+import { AuthService } from "../services/auth.service";
+import { NextFunction, Request, Response } from "express";
+import { validateRegistration } from "../utils/validator";
+import { AuthenticatedRequest } from "../middleware/auth.middleware";
 
-const register = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
-  try {
-    const errors = await validateRegistration(req.body);
-    if (errors.length > 0) {
-      throw new InvalidInput("Invalid input", errors);
-    }
+export class AuthController {
+  private authService = new AuthService();
 
-    const { email, firstName } = req.body;
-    const existingUser = await userModel.getUserByEmail(email);
-    if (existingUser) {
-      throw new Conflict("User already exists");
-    }
-
-    const verifyToken = await authService.sendVerificationMail(
-      firstName,
-      email
-    );
-
-    if (verifyToken === "") {
-      throw new ServerError("internal server error, could not send token");
-    }
-
-    const expiration_timestamp = new Date().getTime() + 24 * 60 * 60 * 1000; // 1 hour (converted to milliseconds)
-
-    const user = await authService.registerUser(req.body);
-
-    // don't send hashed password to client
-    const userJSON = { ...user, password: undefined };
-
-    await authModel.storeToken(
-      user.id,
-      verifyToken,
-      expiration_timestamp,
-      "email"
-    );
-
-    res.status(201).json({ success: true, user: userJSON });
-  } catch (error) {
-    logger.error(`createUser error: ${error}`);
-    next(error);
-  }
-};
-
-const verifyEmail = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
-  try {
-    const { token } = req.params;
-    const { email } = req.body;
-
-    const user = await userModel.getUserByEmail(email);
-    if (!user) {
-      throw new NotFound("User not found");
-    }
-
-    const existingToken = await authModel.retrieveToken(user.id);
-    const currentTimestamp = new Date().getTime();
-
-    // Check if the provided token is invalid
-    if (existingToken && existingToken.token_hash !== token) {
-      throw new BadRequest("Invalid token");
-    }
-
-    // Check if the token has expired
-    if (currentTimestamp > existingToken.expiration_timestamp) {
-      const verifyToken = await authService.sendVerificationMail(
-        user.first_name,
-        user.email
-      );
-      if (verifyToken === "") {
-        throw new ServerError("internal server error, could not send token");
+  async register(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const errors = await validateRegistration(req.body);
+      if (errors.length > 0) {
+        throw new InvalidInput("Invalid input", errors);
       }
 
-      const expiration_timestamp = new Date().getTime() + 24 * 60 * 60 * 1000; // 1 hour (converted to milliseconds)
-      await authModel.storeToken(
-        user.id,
-        verifyToken,
-        expiration_timestamp,
-        "email"
-      );
+      const user = await this.authService.registerUser(req.body);
 
-      throw new BadRequest("token expired, request for another one");
+      res.status(HttpCode.OK).json({ success: true, user });
+    } catch (error) {
+      logger.error(`createUser error: ${error}`);
+      next(error);
     }
-
-    await userModel.updateUser(user.id, {
-      email: user.email,
-      is_verified: true,
-    });
-
-    res.status(200).json({ success: true, message: "email verified" });
-  } catch (error) {
-    logger.error(error);
-    next(error);
   }
-};
 
-const login = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
-  try {
-    const { email, password } = req.body;
-    const user = await userModel.getUserByEmail(email);
-    if (!user) {
-      throw new NotFound("User not found");
+  async verifyEmail(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const { token } = req.params;
+      const { email } = req.body;
+
+      await this.authService.verifyEmail(email, token);
+
+      res
+        .status(HttpCode.OK)
+        .json({ success: true, message: "email verified" });
+    } catch (error) {
+      logger.error(error);
+      next(error);
     }
+  }
 
-    const emailErrors = validateEmail(email);
-    if (emailErrors.length > 0) {
-      throw new InvalidInput("Invalid email", emailErrors);
+  async login(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { email, password } = req.body;
+      const { user, token } = await this.authService.loginUser(email, password);
+
+      res.cookie("jwt", token);
+      res.setHeader("Authorization", `Bearer ${token}`);
+      res.status(HttpCode.OK).json({ success: true, user, token });
+    } catch (error) {
+      logger.error(`login error: ${error}`);
+      next(error);
     }
+  }
 
-    const passwordMatch = await passwordUtil.isValidPassword(
-      password,
-      user.password
-    );
-    if (!passwordMatch) {
-      throw new Unauthorized("Invalid credentials");
+  async forgotPassword(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const { email } = req.body;
+
+      await this.authService.forgotPassword(email);
+
+      res
+        .status(HttpCode.OK)
+        .json({ success: true, message: "Password reset email sent" });
+    } catch (error) {
+      logger.error(`forgotPassword error: ${error}`);
+      next(error);
     }
+  }
 
-    if (!user.is_verified) {
-      const existingToken = await authModel.retrieveToken(user.id);
-      const currentTimestamp = new Date().getTime();
+  async resetPassword(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const { token } = req.params;
+      const { password, email } = req.body;
 
-      // Check if the token has expired
-      if (
-        !existingToken ||
-        currentTimestamp > existingToken.expiration_timestamp
-      ) {
-        const verifyToken = await authService.sendVerificationMail(
-          user.first_name,
-          user.email
-        );
-        if (verifyToken === "") {
-          throw new ServerError("internal server error, could not send token");
-        }
+      await this.authService.resetPassword(email, token, password);
 
-        const expiration_timestamp = new Date().getTime() + 24 * 60 * 60 * 1000; // 1 hour (converted to milliseconds)
-        await authModel.storeToken(
-          user.id,
-          verifyToken,
-          expiration_timestamp,
-          "email"
+      res
+        .status(HttpCode.OK)
+        .json({ success: true, message: "Password reset successful" });
+    } catch (error) {
+      logger.error(`resetPassword error: ${error}`);
+      next(error);
+    }
+  }
+
+  async logout(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      if (!req.authUser) {
+        throw new Unauthorized(
+          "you do not have permissions to access this route",
         );
       }
+      const token = req.cookies.jwt;
+      await redisClient.set(token, "logged out", {
+        PXAT: req.authUser.exp,
+      });
 
-      throw new Unauthorized(
-        "please verify your email address. A verification link has been sent to your email"
-      );
+      res.status(HttpCode.OK).end();
+    } catch (error) {
+      logger.error(`logout error: ${error}`);
+      next(error);
     }
-
-    const token = await authService.generateJwt(user.id);
-    res.cookie("jwt", token);
-    res.setHeader("Authorization", `Bearer ${token}`);
-    // req.session.isAuth = true;
-
-    res.status(201).json({ success: true, token });
-  } catch (error) {
-    logger.error(`login error: ${error}`);
-    next(error);
   }
-};
-
-const forgotPassword = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
-  try {
-    const { email } = req.body;
-
-    const emailErrors = validateEmail(email);
-    if (emailErrors.length > 0) {
-      throw new InvalidInput("Invalid email", emailErrors);
-    }
-    const user = await userModel.getUserByEmail(email);
-    if (!user) {
-      throw new NotFound("User not found");
-    }
-
-    const existingToken = await authModel.retrieveToken(user.id);
-    const currentTimestamp = new Date().getTime();
-
-    // Check if a reset token has already been sent recently
-    if (
-      existingToken &&
-      existingToken.expiration_timestamp > currentTimestamp
-    ) {
-      throw new BadRequest("A reset token has already been sent");
-    }
-
-    const resetToken = await authService.generateToken();
-    const expiration_timestamp = new Date().getTime() + 60 * 60 * 1000; // 1 hour (converted to milliseconds)
-
-    await authModel.storeToken(
-      user.id,
-      resetToken,
-      expiration_timestamp,
-      "password"
-    );
-
-    const link = `${CLIENT_URL}/api/auth/reset-password/${resetToken}`;
-
-    const emailStatus = await emailUtil.sendEmail(
-      email,
-      "Password Reset Request",
-      { firstName: user.first_name, lastName: user.last_name, link },
-      "../../templates/passwordReset.handlebars"
-    );
-
-    if (emailStatus !== "sent") {
-      throw new ServerError("internal server error, could not send email");
-    }
-
-    res
-      .status(200)
-      .json({ success: true, message: "Password reset email sent" });
-  } catch (error) {
-    logger.error(`forgotPassword error: ${error}`);
-    next(error);
-  }
-};
-
-const resetPassword = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
-  try {
-    const { token } = req.params;
-    const { password, email } = req.body;
-
-    const emailErrors = validateEmail(email);
-    if (emailErrors.length > 0) {
-      throw new InvalidInput("invalid email", emailErrors);
-    }
-
-    const passwordErrors = validatePassword(password);
-    if (passwordErrors.length > 0) {
-      throw new InvalidInput("invalid password", passwordErrors);
-    }
-
-    const user = await userModel.getUserByEmail(email);
-    if (!user) {
-      throw new NotFound("User not found");
-    }
-
-    const existingToken = await authModel.retrieveToken(user.id);
-    if (!existingToken || token != existingToken.token_hash) {
-      throw new Unauthorized("Invalid token");
-    }
-
-    // Hash the new password and update the user
-    const hashedPassword = await passwordUtil.hashPassword(password);
-    await userModel.updateUser(user.id, { email, hashedPassword });
-
-    // Delete the used token
-    await authModel.deleteToken(user.id);
-
-    await emailUtil.sendEmail(
-      email,
-      "Password Reset Successfully",
-      {
-        firstName: user.first_name,
-        lastName: user.last_name,
-      },
-      "../../templates/passwordResetSuccess.handlebars"
-    );
-
-    res
-      .status(201)
-      .json({ success: true, message: "Password reset successful" });
-  } catch (error) {
-    logger.error(`resetPassword error: ${error}`);
-    next(error);
-  }
-};
-
-const logout = async (_req: Request, res: Response, next: NextFunction) => {
-  try {
-    // TODO
-    res.status(200).end();
-  } catch (error) {
-    logger.error(`logout error: ${error}`);
-    next(error);
-  }
-};
-
-const refreshToken = async (
-  _req: Request,
-  _res: Response,
-  next: NextFunction
-) => {
-  try {
-    // TODO
-    // Add logic to refresh the token, involve validating the existing token, generating a new one, and updating the user's session
-  } catch (error) {
-    logger.error(`refreshToken error: ${error}`);
-    next(error);
-  }
-};
-
-export default {
-  register,
-  verifyEmail,
-  login,
-  forgotPassword,
-  resetPassword,
-  logout,
-  refreshToken,
-};
+}

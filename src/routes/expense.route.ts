@@ -1,17 +1,18 @@
 import { Router } from "express";
 
-import expenseController from "../controllers/expense.controller";
+import { ExpenseController } from "../controllers/expense.controller";
 
 const expenseRouter = Router();
+const expenseController = new ExpenseController();
 
-expenseRouter.get("/", expenseController.getAllExpenses);
+expenseRouter.get("/", expenseController.listExpenses);
 
 expenseRouter.post("/", expenseController.createExpense);
 
-expenseRouter.get("/expense-summary", expenseController.getExpenseSummary);
+expenseRouter.get("/:expenseId", expenseController.getExpense);
 
-expenseRouter.post("/settle-expense", expenseController.settleExpense);
+expenseRouter.get("/:expenseId/summary", expenseController.getExpenseSummary);
 
-expenseRouter.get("/:expenseID", expenseController.getExpense);
+expenseRouter.post("/:expenseId/settle", expenseController.settleExpense);
 
 export default expenseRouter;

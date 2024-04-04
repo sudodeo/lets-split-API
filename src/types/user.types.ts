@@ -6,10 +6,10 @@ export interface User {
   dob: Date;
   address: string;
   password: string;
-  is_verified: boolean;
+  isVerified: boolean;
   createdAt: Date;
   updatedAt: Date;
-  [key: string]: any;
+  role: string;
 }
 
 export interface UpdateUser {
@@ -19,16 +19,12 @@ export interface UpdateUser {
   dob?: Date;
   address?: string;
   password?: string;
-  is_verified?: boolean;
-  [key: string]: any;
+  isVerified?: boolean;
+  [key: string]: unknown;
 }
 
 export interface AuthUser {
   id: string;
   role: string;
-}
-declare module "express" {
-  interface Request {
-    authUser?: AuthUser;
-  }
+  exp: number;
 }

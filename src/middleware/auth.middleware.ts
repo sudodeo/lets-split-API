@@ -1,22 +1,34 @@
 import logger from "../config/loggerConfig";
-import authService from "../services/auth.service";
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Response, Request } from "express";
 import { ServerError, Unauthorized } from "./error.middleware";
+import { verifyJwt } from "../utils/token";
+import redisClient from "../db/redis";
+import { AuthUser } from "../types/user.types";
 
 const authorizeUser = async (
-  req: Request,
+  req: AuthenticatedRequest,
   _res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> => {
   try {
-    const token = req.headers.authorization;
+    let token = req.headers.authorization;
     if (!token) {
       throw new Unauthorized("access denied");
     }
-    const decodedJwt = authService.verifyJwt(token);
+    token = token.replace("Bearer ", "");
+
+    // check if token is blacklisted in redis (logged out user)
+    const blacklistedToken = await redisClient.get(token);
+    if (blacklistedToken) {
+      console.log(blacklistedToken);
+      throw new Unauthorized("access denied, invalid token");
+    }
+
+    const decodedJwt = verifyJwt(token);
     if (decodedJwt == null) {
       throw new ServerError("decoded jwt null");
     }
+
     const decodedPayload = decodedJwt.payload;
     if (decodedPayload.iss !== (process.env.JWT_ISS as string)) {
       throw new Unauthorized("invalid issuer");
@@ -25,13 +37,21 @@ const authorizeUser = async (
       throw new Unauthorized("invalid audience");
     }
 
-    req.authUser = { id: decodedPayload.sub, role: decodedPayload.role };
+    const exp = decodedPayload.exp;
+    if (exp < new Date().getTime()) {
+      throw new Unauthorized("token expired");
+    }
+
+    req.authUser = { id: decodedPayload.sub, role: decodedPayload.role, exp };
     next();
   } catch (error) {
     logger.error(`authorizeUser error: ${error}`);
     next(error);
   }
-  // next();
 };
 
-export default { authorizeUser };
+interface AuthenticatedRequest extends Request {
+  authUser?: AuthUser;
+}
+
+export { authorizeUser, AuthenticatedRequest };

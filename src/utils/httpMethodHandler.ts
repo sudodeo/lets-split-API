@@ -1,5 +1,3 @@
-// import { NextFunction, Request, Response } from "express";
-
 // Function to determine allowed methods for an endpoint
 export const getAllowedMethodsForEndpoint = (path: string) => {
   switch (path) {
@@ -39,27 +37,3 @@ export const getAllowedMethodsForEndpoint = (path: string) => {
       return [];
   }
 };
-
-// const httpMethodHandler = async (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction,
-// ) => {
-//   const allowedMethods = getAllowedMethodsForEndpoint(req.path);
-//   if (allowedMethods.length === 0) {
-//     // endpoint does not exist
-//     return next();
-//   }
-
-//   if (!allowedMethods.includes(req.method)) {
-//     return res.status(405).json({
-//       success: false,
-//       error: "Method Not Allowed",
-//       message: `The requested method ${req.method} is not allowed for this endpoint.`,
-//       allowedMethods,
-//     });
-//   }
-//   next();
-// };
-
-// export default httpMethodHandler;

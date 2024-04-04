@@ -10,6 +10,7 @@ const logger = require("../dist/config/loggerConfig").default;
 var http = require("http");
 
 const { PORT } = require("../dist/config/index");
+const { connectToRedis } = require("../dist/db/redis.js");
 
 app.set("port", PORT);
 
@@ -21,5 +22,6 @@ var server = http.createServer(app);
 
 server.listen(PORT, async () => {
   await seedDatabase();
+  await connectToRedis();
   logger.debug(`Server running on port ${PORT}`);
 });

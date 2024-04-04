@@ -3,12 +3,10 @@ import pool from "../db/connection";
 const getCurrencies = async () => {
   const client = await pool.connect();
   try {
-    let results = await client.query("SELECT currency_code FROM currencies;");
+    const results = await client.query("SELECT currency_code FROM currencies;");
     return results.rows;
-  } catch (error) {
-    throw error;
   } finally {
-    client.release;
+    client.release();
   }
 };
 
@@ -20,10 +18,8 @@ const getCurrency = async (currencyCode: string) => {
       [currencyCode],
     );
     return currency.rows[0];
-  } catch (error) {
-    throw error;
   } finally {
-    client.release;
+    client.release();
   }
 };
 export default { getCurrencies, getCurrency };
