@@ -1,11 +1,12 @@
 import logger from "../config/loggerConfig";
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Response, Request } from "express";
 import { ServerError, Unauthorized } from "./error.middleware";
 import { verifyJwt } from "../utils/token";
 import redisClient from "../db/redis";
+import { AuthUser } from "../types/user.types";
 
 const authorizeUser = async (
-  req: Request,
+  req: AuthenticatedRequest,
   _res: Response,
   next: NextFunction,
 ): Promise<void> => {
@@ -49,4 +50,8 @@ const authorizeUser = async (
   }
 };
 
-export default { authorizeUser };
+interface AuthenticatedRequest extends Request {
+  authUser?: AuthUser;
+}
+
+export { authorizeUser, AuthenticatedRequest };
