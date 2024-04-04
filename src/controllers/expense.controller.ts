@@ -14,20 +14,20 @@ export class ExpenseController {
   listExpenses = async (
     req: AuthenticatedRequest,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
   ): Promise<void> => {
     try {
       const userID = req.authUser?.id;
 
       if (userID == null) {
         throw new Unauthorized(
-          "you do not have permission to perform this action",
+          "you do not have permission to perform this action"
         );
       }
 
       const expenses = await this.expenseService.listExpenses(
         req.query,
-        userID,
+        userID
       );
 
       res.status(HttpCode.OK).json({ success: true, expenses });
@@ -41,11 +41,11 @@ export class ExpenseController {
   getExpense = async (
     req: AuthenticatedRequest,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
   ): Promise<void> => {
     try {
-      const { id } = req.params;
-      const expense = await this.expenseService.getExpense(id);
+      const { expenseId } = req.params;
+      const expense = await this.expenseService.getExpense(expenseId);
       if (!expense) {
         throw new ResourceNotFound("expense not found");
       }
@@ -60,7 +60,7 @@ export class ExpenseController {
   createExpense = async (
     req: AuthenticatedRequest,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
   ) => {
     try {
       const expense = await this.expenseService.createExpense(req.body);
@@ -75,6 +75,33 @@ export class ExpenseController {
     }
   };
 
-  // getExpenseSummary = async (_req: Request, _res: Response) => {};
-  // settleExpense = async (_req: Request, _res: Response) => {};
+  getExpenseSummary = async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const expenseId = req.params.expenseId;
+      const summary = await this.expenseService.getExpenseSummary(expenseId);
+      res.status(HttpCode.OK).json({ success: true, summary });
+    } catch (error) {
+      logger.error(`getExpenseSummary error: ${error}`);
+      next(error);
+    }
+  };
+
+  settleExpense = async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const expenseId = req.params.expenseId;
+      const expense = await this.expenseService.settleExpense(expenseId);
+      res.status(HttpCode.OK).json({ success: true, expense });
+    } catch (error) {
+      logger.error(`settleExpense error: ${error}`);
+      next(error);
+    }
+  };
 }

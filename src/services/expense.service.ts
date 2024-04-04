@@ -32,4 +32,20 @@ export class ExpenseService {
 
     return await expenseModel.createExpense(expenseData);
   };
+
+  getExpenseSummary = async (expenseId: string) => {
+    const existingExpense = await expenseModel.getExpense(expenseId);
+    if (!existingExpense) {
+      throw new BadRequest("Expense not found");
+    }
+    return await expenseModel.getExpenseSummary(expenseId);
+  };
+
+  settleExpense = async (expenseId: string) => {
+    const existingExpense = await expenseModel.getExpense(expenseId);
+    if (!existingExpense) {
+      throw new BadRequest("Expense not found");
+    }
+    return await expenseModel.settleExpense(expenseId);
+  };
 }
