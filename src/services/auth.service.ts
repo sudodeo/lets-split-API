@@ -26,7 +26,7 @@ export class AuthService {
 
     const verifyToken = await sendVerificationMail(
       userData.firstName,
-      userData.email
+      userData.email,
     );
 
     if (verifyToken === "") {
@@ -43,7 +43,7 @@ export class AuthService {
       user.id,
       verifyToken,
       expiration_timestamp,
-      "email"
+      "email",
     );
 
     return user;
@@ -76,7 +76,7 @@ export class AuthService {
 
   async loginUser(
     email: string,
-    password: string
+    password: string,
   ): Promise<{ user: User; token: string }> {
     const user = await userModel.getUserByEmail(email);
     if (!user) {
@@ -90,7 +90,7 @@ export class AuthService {
 
     const passwordMatch = await passwordUtil.isValidPassword(
       password,
-      user.password
+      user.password,
     );
     if (!passwordMatch) {
       throw new Unauthorized("Invalid credentials");
@@ -108,7 +108,7 @@ export class AuthService {
       ) {
         const verifyToken = await sendVerificationMail(
           user.firstName,
-          user.email
+          user.email,
         );
         if (verifyToken === "") {
           throw new ServerError("internal server error, could not send token");
@@ -119,12 +119,12 @@ export class AuthService {
           user.id,
           verifyToken,
           expiration_timestamp,
-          "email"
+          "email",
         );
       }
 
       throw new Unauthorized(
-        "please verify your email address. A verification link has been sent to your email"
+        "please verify your email address. A verification link has been sent to your email",
       );
     }
 
@@ -162,7 +162,7 @@ export class AuthService {
       user.id,
       resetToken,
       expiration_timestamp,
-      "password"
+      "password",
     );
 
     const link = `${CLIENT_URL}/api/auth/reset-password/${resetToken}`;
@@ -171,7 +171,7 @@ export class AuthService {
       email,
       "Password Reset Request",
       { firstName: user.firstName, lastName: user.lastName, link },
-      "../../templates/passwordReset.handlebars"
+      "../../templates/passwordReset.handlebars",
     );
 
     if (emailStatus !== "sent") {
@@ -215,7 +215,7 @@ export class AuthService {
         firstName: user.firstName,
         lastName: user.lastName,
       },
-      "../../templates/passwordResetSuccess.handlebars"
+      "../../templates/passwordResetSuccess.handlebars",
     );
   }
 }

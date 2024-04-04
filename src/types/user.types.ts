@@ -20,16 +20,11 @@ export interface UpdateUser {
   address?: string;
   password?: string;
   isVerified?: boolean;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface AuthUser {
   id: string;
   role: string;
   exp: number;
-}
-declare module "express" {
-  interface Request {
-    authUser?: AuthUser;
-  }
 }

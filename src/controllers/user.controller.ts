@@ -8,6 +8,7 @@ import {
 import { UserService } from "../services/user.service";
 import { NextFunction, Request, Response } from "express";
 import { AuthUser } from "../types/user.types";
+import { AuthenticatedRequest } from "../middleware/auth.middleware";
 
 export class UserController {
   private userService = new UserService();
@@ -22,12 +23,16 @@ export class UserController {
     }
   };
 
-  getUser = async (req: Request, res: Response, next: NextFunction) => {
+  getUser = async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction,
+  ) => {
     try {
       const authUser = req.authUser;
       if (authUser == null) {
         throw new Unauthorized(
-          "you do not have permission to perform this action"
+          "you do not have permission to perform this action",
         );
       }
 
@@ -46,15 +51,15 @@ export class UserController {
   };
 
   updateUser = async (
-    req: Request,
+    req: AuthenticatedRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> => {
     try {
       const authUser: AuthUser | undefined = req.authUser;
       if (authUser == null) {
         throw new Unauthorized(
-          "you do not have permission to perform this action"
+          "you do not have permission to perform this action",
         );
       }
 
@@ -73,7 +78,11 @@ export class UserController {
     }
   };
 
-  deleteUser = async (req: Request, res: Response, next: NextFunction) => {
+  deleteUser = async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction,
+  ) => {
     try {
       const id = req.params.id;
       const deletedUser = await this.userService.deleteUser(id);

@@ -7,7 +7,7 @@ const listExpenses = async (id: string) => {
   try {
     const result = await client.query(
       "SELECT * FROM expense_participants WHERE user_id=$1;",
-      [id]
+      [id],
     );
     return result.rows;
   } finally {
@@ -20,7 +20,7 @@ const getCreatedExpenses = async (id: string) => {
   try {
     const result = await client.query(
       "SELECT * FROM expenses WHERE created_by=$1;",
-      [id]
+      [id],
     );
     return result.rows;
   } finally {
@@ -52,7 +52,7 @@ const createExpense = async (data: Expense) => {
         data.created_by,
         data.description,
         data.is_settled,
-      ]
+      ],
     );
     const expense = expenseR.rows[0];
     const expenseID = expense.id;
@@ -67,7 +67,7 @@ const createExpense = async (data: Expense) => {
           currency_code_id: data.currency_code_id,
           comments: `'${participant.comments}'`,
         };
-      }
+      },
     );
 
     for (const participant of expense_participants) {
@@ -84,7 +84,7 @@ const createExpense = async (data: Expense) => {
 
     const participants = await client.query(
       "SELECT  user_id, payment_cut, is_settled, comments FROM expense_participants WHERE expense_id=$1;",
-      [expenseID]
+      [expenseID],
     );
     await client.query("COMMIT");
     const expenseSummary = {
@@ -112,7 +112,7 @@ const getExpenseSummary = async (expenseID: string) => {
   try {
     await client.query(
       "SELECT expenses.id, user_id, payment_cut FROM expense_participants JOIN expenses on expense_participants.expense_id=expenses.id WHERE expenses.id=$1;",
-      [expenseID]
+      [expenseID],
     );
   } finally {
     client.release();

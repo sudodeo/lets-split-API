@@ -8,13 +8,15 @@ import {
 import { AuthService } from "../services/auth.service";
 import { NextFunction, Request, Response } from "express";
 import { validateRegistration } from "../utils/validator";
+import { AuthenticatedRequest } from "../middleware/auth.middleware";
 
 export class AuthController {
   private authService = new AuthService();
+
   async register(
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const errors = await validateRegistration(req.body);
@@ -34,7 +36,7 @@ export class AuthController {
   async verifyEmail(
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const { token } = req.params;
@@ -68,7 +70,7 @@ export class AuthController {
   async forgotPassword(
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const { email } = req.body;
@@ -87,7 +89,7 @@ export class AuthController {
   async resetPassword(
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const { token } = req.params;
@@ -104,11 +106,11 @@ export class AuthController {
     }
   }
 
-  async logout(req: Request, res: Response, next: NextFunction) {
+  async logout(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       if (!req.authUser) {
         throw new Unauthorized(
-          "you do not have permissions to access this route"
+          "you do not have permissions to access this route",
         );
       }
       const token = req.cookies.jwt;
