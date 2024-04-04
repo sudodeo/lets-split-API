@@ -1,7 +1,8 @@
 import { Router } from "express";
-import userController from "../controllers/user.controller";
+import { UserController } from "../controllers/user.controller";
 
 const profileRouter = Router();
+const userController = new UserController();
 
 profileRouter.get("/", userController.getUser);
 profileRouter.patch("/", userController.updateUser);

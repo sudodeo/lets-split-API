@@ -5,7 +5,7 @@ import authRouter from "./auth.route";
 import healthRouter from "./health.route";
 import expenseRouter from "./expense.route";
 import currenciesRouter from "./currencies.route";
-import authMiddleware from "../middleware/auth.middleware";
+import { authorizeUser } from "../middleware/auth.middleware";
 import profileRouter from "./userProfile.route";
 import userRouter from "./user.route";
 
@@ -18,8 +18,7 @@ router.use("/health", healthRouter);
 router.use("/auth", authRouter);
 router.use("/currencies", currenciesRouter);
 
-// Apply authorization middleware to all routes declared after this point
-router.use(authMiddleware.authorizeUser);
+router.use(authorizeUser);
 
 router.use("/profile", profileRouter);
 router.use("/users", userRouter);
