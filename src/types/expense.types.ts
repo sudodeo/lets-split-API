@@ -5,6 +5,7 @@ export interface Expense {
   description: string;
   created_at: string;
   is_settled: boolean;
+  currency_code: string;
   currency_code_id: string;
   participants: ExpenseParticipant[];
 }

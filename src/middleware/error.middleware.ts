@@ -1,8 +1,11 @@
 import { NextFunction, Request, Response } from "express";
-import { getAllowedMethodsForEndpoint } from "./httpMethodHandler";
+import { getAllowedMethodsForEndpoint } from "../utils/httpMethodHandler";
+import { AuthenticatedRequest } from "./auth.middleware";
+import { ValidationError } from "../types/error.type";
 
 export enum HttpCode {
   OK = 200,
+  CREATED = 201,
   NO_CONTENT = 204,
   BAD_REQUEST = 400,
   UNAUTHORIZED = 401,
@@ -16,12 +19,12 @@ export enum HttpCode {
 
 class AppError extends Error {
   public status: HttpCode;
-  public error: Record<string, any>;
+  public error: Record<string, unknown> | ValidationError[];
 
   constructor(
     statusCode: HttpCode,
     message: string,
-    error: Record<string, any> = {},
+    error: Record<string, unknown> | ValidationError[] = {}
   ) {
     super(message);
     this.status = statusCode;
@@ -30,48 +33,51 @@ class AppError extends Error {
 }
 
 export class BadRequest extends AppError {
-  constructor(message: string, error?: Record<string, any>) {
+  constructor(message: string, error?: Record<string, unknown>) {
     super(HttpCode.BAD_REQUEST, message, error);
   }
 }
 
 export class Unauthorized extends AppError {
-  constructor(message: string, error?: Record<string, any>) {
+  constructor(message: string, error?: Record<string, unknown>) {
     super(HttpCode.UNAUTHORIZED, message, error);
   }
 }
 
 export class Forbidden extends AppError {
-  constructor(message: string, error?: Record<string, any>) {
+  constructor(message: string, error?: Record<string, unknown>) {
     super(HttpCode.FORBIDDEN, message, error);
   }
 }
 
-export class NotFound extends AppError {
-  constructor(message: string, error?: Record<string, any>) {
+export class ResourceNotFound extends AppError {
+  constructor(message: string, error?: Record<string, unknown>) {
     super(HttpCode.NOT_FOUND, message, error);
   }
 }
 
 export class Conflict extends AppError {
-  constructor(message: string, error?: Record<string, any>) {
+  constructor(message: string, error?: Record<string, unknown>) {
     super(HttpCode.CONFLICT, message, error);
   }
 }
 
 export class InvalidInput extends AppError {
-  constructor(message: string, error?: Record<string, any>) {
+  constructor(
+    message: string,
+    error?: Record<string, unknown> | ValidationError[]
+  ) {
     super(HttpCode.INVALID_INPUT, message, error);
   }
 }
 
 export class ServerError extends AppError {
-  constructor(message: string, error?: Record<string, any>) {
+  constructor(message: string, error?: Record<string, unknown>) {
     super(HttpCode.INTERNAL_SERVER_ERROR, message, error);
   }
 }
 
-export const routeNotFound = (req: Request, res: Response) => {
+export const routeNotFound = (req: AuthenticatedRequest, res: Response) => {
   res.status(HttpCode.NOT_FOUND).json({
     message: "Requested route does not exist",
     path: req.url,
@@ -79,9 +85,9 @@ export const routeNotFound = (req: Request, res: Response) => {
 };
 
 export const methodNotAllowed = (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ) => {
   const allowedMethods = getAllowedMethodsForEndpoint(req.path);
   if (allowedMethods.length === 0) {
@@ -97,19 +103,14 @@ export const methodNotAllowed = (
       allowedMethods,
     });
   }
-  next()
+  next();
 };
 
-export const errorHandler = (
-  err: AppError,
-  _req: Request,
-  res: Response,
-  _next: NextFunction,
-) => {
+export const errorHandler = (err: AppError, _req: Request, res: Response) => {
   const payload = {
     success: false,
     message: err.message,
-    errors: err.error,
+    details: err.error,
   };
 
   if (!err.status) {

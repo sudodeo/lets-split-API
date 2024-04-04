@@ -1,75 +1,221 @@
-import jwt, { JwtPayload } from "jsonwebtoken";
-import crypto from "crypto";
-
-import logger from "../config/loggerConfig";
-import { JWT_SECRET, CLIENT_URL } from "../config/index";
-import passwordUtil from "../utils/password.util";
+import passwordUtil from "../utils/password";
 import userModel from "../models/user.model";
-import emailUtil from "../utils/email";
 import { User } from "../types/user.types";
+import {
+  BadRequest,
+  Conflict,
+  InvalidInput,
+  ResourceNotFound,
+  ServerError,
+  Unauthorized,
+} from "../middleware/error.middleware";
+import authModel from "../models/auth.model";
+import { sendEmail, sendVerificationMail } from "../utils/email";
+import { generateJwt, generateToken } from "../utils/token";
+import { validateEmail, validatePassword } from "../utils/validator";
+import { CLIENT_URL } from "../config";
 
-const registerUser = async (userData: User) => {
-  // Hash the password before storing it in the database
-  userData.password = await passwordUtil.hashPassword(userData.password);
-  const user = await userModel.createUser(userData);
+export class AuthService {
+  async registerUser(userData: User) {
+    const { email } = userData;
 
-  return user;
-};
+    const existingUser = await userModel.getUserByEmail(email);
+    if (existingUser) {
+      throw new Conflict("User already exists");
+    }
 
-const sendVerificationMail = async (firstName: string, email: string) => {
-  const verifyToken = await generateToken();
-  const link = `${CLIENT_URL}/api/auth/verify/${verifyToken}`;
-  const emailStatus = await emailUtil.sendEmail(
-    email,
-    "Verify Email",
-    { firstName, link },
-    "../../templates/verifyMail.handlebars",
-  );
+    const verifyToken = await sendVerificationMail(
+      userData.firstName,
+      userData.email,
+    );
 
-  if (emailStatus !== "sent") {
-    return "";
+    if (verifyToken === "") {
+      throw new ServerError("internal server error, could not send token");
+    }
+
+    const expiration_timestamp = new Date().getTime() + 24 * 60 * 60 * 1000; // 1 hour (converted to milliseconds)
+
+    // Hash the password before storing it in the database
+    userData.password = await passwordUtil.hashPassword(userData.password);
+    const user = await userModel.createUser(userData);
+
+    await authModel.storeToken(
+      user.id,
+      verifyToken,
+      expiration_timestamp,
+      "email",
+    );
+
+    return user;
   }
-  return verifyToken;
-};
 
-const generateJwt = (id: string) => {
-  const maxAge = "1h";
-  return jwt.sign(
-    {
-      sub: id,
-      iat: new Date().getTime(),
-      iss: process.env.JWT_ISS as string,
-      aud: process.env.JWT_AUD as string,
-    },
-    JWT_SECRET as string,
-    { expiresIn: maxAge },
-  );
-};
+  async verifyEmail(email: string, token: string) {
+    const user = await userModel.getUserByEmail(email);
+    if (!user) {
+      throw new ResourceNotFound("User not found");
+    }
 
-const verifyJwt = (token: string): JwtPayload => {
-  try {
-    return jwt.verify(token.replace("Bearer ", ""), JWT_SECRET as string, {complete:true});
-  } catch (error) {
-    logger.error(`verifyJwt error: ${error}`);
-    throw error
+    const existingToken = await authModel.retrieveToken(user.id);
+    const currentTimestamp = new Date().getTime();
+
+    // Check if the provided token is invalid
+    if (existingToken && existingToken.token_hash !== token) {
+      throw new BadRequest("Invalid token");
+    }
+
+    // Check if the token has expired
+    if (currentTimestamp > existingToken.expiration_timestamp) {
+      throw new BadRequest("token expired, request for another one");
+    }
+
+    await userModel.updateUser(user.id, {
+      email: user.email,
+      isVerified: true,
+    });
   }
-};
 
-const refreshJwt = (_token: string) => {
-  // TODO
-};
+  async loginUser(
+    email: string,
+    password: string,
+  ): Promise<{ user: User; token: string }> {
+    const user = await userModel.getUserByEmail(email);
+    if (!user) {
+      throw new ResourceNotFound("User not found");
+    }
 
-const generateToken = async () => {
-  const token = crypto.randomBytes(32).toString("hex");
-  // const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
-  return token;
-};
+    const emailErrors = validateEmail(email);
+    if (emailErrors.length > 0) {
+      throw new InvalidInput("Invalid email", emailErrors);
+    }
 
-export default {
-  registerUser,
-  sendVerificationMail,
-  refreshJwt,
-  generateJwt,
-  verifyJwt,
-  generateToken,
-};
+    const passwordMatch = await passwordUtil.isValidPassword(
+      password,
+      user.password,
+    );
+    if (!passwordMatch) {
+      throw new Unauthorized("Invalid credentials");
+    }
+
+    if (!user.isVerified) {
+      // Resend the verification email
+      const existingToken = await authModel.retrieveToken(user.id);
+      const currentTimestamp = new Date().getTime();
+
+      // Check if the token has expired
+      if (
+        !existingToken ||
+        currentTimestamp > existingToken.expiration_timestamp
+      ) {
+        const verifyToken = await sendVerificationMail(
+          user.firstName,
+          user.email,
+        );
+        if (verifyToken === "") {
+          throw new ServerError("internal server error, could not send token");
+        }
+
+        const expiration_timestamp = new Date().getTime() + 24 * 60 * 60 * 1000; // 1 hour
+        await authModel.storeToken(
+          user.id,
+          verifyToken,
+          expiration_timestamp,
+          "email",
+        );
+      }
+
+      throw new Unauthorized(
+        "please verify your email address. A verification link has been sent to your email",
+      );
+    }
+
+    const token = await generateJwt(user.id, user.role);
+
+    return { user, token };
+  }
+
+  async forgotPassword(email: string) {
+    const emailErrors = validateEmail(email);
+    if (emailErrors.length > 0) {
+      throw new InvalidInput("Invalid email", emailErrors);
+    }
+    const user = await userModel.getUserByEmail(email);
+    if (!user) {
+      throw new ResourceNotFound("User not found");
+    }
+    console.log(user);
+
+    const existingToken = await authModel.retrieveToken(user.id);
+    const currentTimestamp = new Date().getTime();
+
+    // Check if a reset token has already been sent recently
+    if (
+      existingToken &&
+      existingToken.expiration_timestamp > currentTimestamp
+    ) {
+      throw new BadRequest("A reset token has already been sent");
+    }
+
+    const resetToken = await generateToken();
+    const expiration_timestamp = new Date().getTime() + 60 * 60 * 1000; // 1 hour (converted to milliseconds)
+
+    await authModel.storeToken(
+      user.id,
+      resetToken,
+      expiration_timestamp,
+      "password",
+    );
+
+    const link = `${CLIENT_URL}/api/auth/reset-password/${resetToken}`;
+
+    const emailStatus = await sendEmail(
+      email,
+      "Password Reset Request",
+      { firstName: user.firstName, lastName: user.lastName, link },
+      "../../templates/passwordReset.handlebars",
+    );
+
+    if (emailStatus !== "sent") {
+      throw new ServerError("internal server error, could not send email");
+    }
+  }
+
+  async resetPassword(email: string, token: string, password: string) {
+    const emailErrors = validateEmail(email);
+    if (emailErrors.length > 0) {
+      throw new InvalidInput("invalid email", emailErrors);
+    }
+
+    const passwordErrors = validatePassword(password);
+    if (passwordErrors.length > 0) {
+      throw new InvalidInput("invalid password", passwordErrors);
+    }
+
+    const user = await userModel.getUserByEmail(email);
+    if (!user) {
+      throw new ResourceNotFound("User not found");
+    }
+
+    const existingToken = await authModel.retrieveToken(user.id);
+    console.log(existingToken);
+    if (!existingToken || token != existingToken.token_hash) {
+      throw new Unauthorized("Invalid token");
+    }
+
+    // Hash the new password and update the user
+    const hashedPassword = await passwordUtil.hashPassword(password);
+    await userModel.updateUser(user.id, { email, password: hashedPassword });
+
+    // Delete the used token
+    await authModel.deleteToken(user.id);
+
+    await sendEmail(
+      email,
+      "Password Reset Successfully",
+      {
+        firstName: user.firstName,
+        lastName: user.lastName,
+      },
+      "../../templates/passwordResetSuccess.handlebars",
+    );
+  }
+}
