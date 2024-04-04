@@ -9,10 +9,10 @@ expenseRouter.get("/", expenseController.listExpenses);
 
 expenseRouter.post("/", expenseController.createExpense);
 
-expenseRouter.get("/expense-summary", expenseController.getExpenseSummary);
+expenseRouter.get("/:expenseId", expenseController.getExpense);
 
-expenseRouter.post("/settle-expense", expenseController.settleExpense);
+expenseRouter.get("/:expenseId/summary", expenseController.getExpenseSummary);
 
-expenseRouter.get("/:id", expenseController.getExpense);
+expenseRouter.post("/:expenseId/settle", expenseController.settleExpense);
 
 export default expenseRouter;
